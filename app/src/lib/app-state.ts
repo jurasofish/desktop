@@ -91,6 +91,11 @@ export interface IAppState {
   readonly recentRepositories: ReadonlyArray<number>
 
   /**
+   * List of IDs of the pinned repositories in display order
+   */
+  readonly pinnedRepositories: ReadonlyArray<number>
+
+  /**
    * A cache of the latest repository state values, keyed by the repository id
    */
   readonly localRepositoryStateLookup: Map<number, ILocalRepositoryState>
