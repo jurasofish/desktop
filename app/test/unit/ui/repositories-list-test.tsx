@@ -61,6 +61,7 @@ function props(
     accounts,
     selectedRepository: null,
     recentRepositories: [],
+    pinnedRepositories: [],
     localRepositoryStateLookup: new Map(),
     onSelectionChanged: () => {},
     askForConfirmationOnRemoveRepository: false,
@@ -73,6 +74,10 @@ function props(
     filterText: '',
     onChangeRepositoryAccount: () => {},
     onShowRepositorySettings: () => {},
+    onPinRepository: () => {},
+    onUnpinRepository: () => {},
+    onMovePinnedRepositoryUp: () => {},
+    onMovePinnedRepositoryDown: () => {},
     dispatcher: createMockDispatcher({}),
   }
 }

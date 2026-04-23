@@ -106,7 +106,7 @@ describe('repository list grouping', () => {
     )
 
     assert.strictEqual(grouped.length, 1)
-    assert.strictEqual(getGroupKey(grouped[0].identifier), '1:dotcom:acme')
+    assert.strictEqual(getGroupKey(grouped[0].identifier), '2:dotcom:acme')
 
     const split = groupRepositories(
       [alice, sameAccount, unassociated, assignedRepository(13, 'bob')],
@@ -196,7 +196,7 @@ describe('repository list grouping', () => {
         [1, 3, 5, 7],
       ]
     )
-    assert.strictEqual(getGroupKey(grouped[0].identifier), '0:recent')
+    assert.strictEqual(getGroupKey(grouped[0].identifier), '1:recent')
   })
 
   it('groups repositories by owners/Enterprise/Other', () => {
@@ -262,6 +262,51 @@ describe('repository list grouping', () => {
     assert.equal(items[0].repository.path, 'a')
     assert.equal(items[1].repository.path, 'c')
     assert.equal(items[2].repository.path, 'z')
+  })
+
+  it('preserves the manual pinned order', () => {
+    const repoA = new Repository('a', 1, null, false)
+    const repoB = new Repository('b', 2, null, false)
+    const repoC = new Repository('c', 3, null, false)
+
+    const grouped = groupRepositories(
+      [repoA, repoB, repoC],
+      cache,
+      [],
+      [],
+      [3, 1]
+    )
+
+    assert.equal(grouped[0].identifier.kind, 'pinned')
+    assert.equal(grouped[0].items.length, 2)
+    assert.equal(grouped[0].items[0].repository.path, 'c')
+    assert.equal(grouped[0].items[1].repository.path, 'a')
+  })
+
+  it('uses distinct ids for pinned and ordinary rows', () => {
+    const repository = new Repository('repo', 1, null, false)
+
+    const grouped = groupRepositories([repository], cache, [], [], [1])
+    const ids = grouped.flatMap(group => group.items.map(item => item.id))
+
+    assert.deepEqual(ids, ['0:pinned:1', '4:other:1'])
+  })
+
+  it('omits missing repositories from the pinned group', () => {
+    const presentRepo = new Repository('present', 1, null, false)
+    const missingRepo = new Repository('missing', 2, null, true)
+
+    const grouped = groupRepositories(
+      [presentRepo, missingRepo],
+      cache,
+      [],
+      [],
+      [2, 1]
+    )
+
+    assert.equal(grouped[0].identifier.kind, 'pinned')
+    assert.equal(grouped[0].items.length, 1)
+    assert.equal(grouped[0].items[0].repository.path, 'present')
   })
 
   it('only disambiguates Enterprise repositories', () => {

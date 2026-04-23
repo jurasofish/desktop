@@ -65,6 +65,11 @@ const getMenu = (
     onRemoveRepository: () => {},
     onChangeRepositoryAlias: () => {},
     onRemoveRepositoryAlias: () => {},
+    pinnedRepositories: [],
+    onPinRepository: () => {},
+    onUnpinRepository: () => {},
+    onMovePinnedRepositoryUp: () => {},
+    onMovePinnedRepositoryDown: () => {},
   })
 
 const getAccountMenu = (
@@ -179,5 +184,16 @@ describe('repository list context menu Repository Settings item', () => {
   it('is hidden for missing and cloning repositories', () => {
     assert.ok(!labels(repository(null, github, true)).includes(label))
     assert.ok(!labels(new CloningRepository('/repo', 'url')).includes(label))
+  })
+})
+
+describe('repository list context menu Pin Repository item', () => {
+  it('is hidden for missing repositories', () => {
+    const items = getMenu(repository(null, null, true))
+
+    assert.equal(
+      items.some(item => item.label === 'Pin Repository'),
+      false
+    )
   })
 })

@@ -19,6 +19,8 @@ interface IRepositoryListItemContextMenuConfig {
   askForConfirmationOnRemoveRepository: boolean
   /** The signed-in accounts. */
   accounts: ReadonlyArray<Account>
+  pinnedRepositories: ReadonlyArray<number>
+  showPinningActions?: boolean
   onViewOnGitHub: (repository: Repositoryish) => void
   onOpenInShell: (repository: Repositoryish) => void
   onShowRepository: (repository: Repositoryish) => void
@@ -30,6 +32,10 @@ interface IRepositoryListItemContextMenuConfig {
   onShowWorktrees?: (repository: Repository) => void
   onChangeRepositoryAccount: (repository: Repository, login: string) => void
   onShowRepositorySettings: (repository: Repository) => void
+  onPinRepository: (repository: Repositoryish) => void
+  onUnpinRepository: (repository: Repositoryish) => void
+  onMovePinnedRepositoryUp: (repository: Repositoryish) => void
+  onMovePinnedRepositoryDown: (repository: Repositoryish) => void
 }
 
 export const generateRepositoryListContextMenu = (
@@ -47,6 +53,7 @@ export const generateRepositoryListContextMenu = (
     : DefaultShellLabel
 
   const items: ReadonlyArray<IMenuItem> = [
+    ...(config.showPinningActions === false ? [] : buildPinMenuItem(config)),
     ...buildAliasMenuItems(config),
     ...buildWorktreeMenuItems(config),
     ...buildAccountMenuItems(config),
@@ -85,6 +92,51 @@ export const generateRepositoryListContextMenu = (
       label: config.askForConfirmationOnRemoveRepository ? 'Remove…' : 'Remove',
       action: () => config.onRemoveRepository(repository),
     },
+  ]
+
+  return items
+}
+
+const buildPinMenuItem = (
+  config: IRepositoryListItemContextMenuConfig
+): ReadonlyArray<IMenuItem> => {
+  const { repository } = config
+
+  if (!(repository instanceof Repository) || repository.missing) {
+    return []
+  }
+
+  const index = config.pinnedRepositories.indexOf(repository.id)
+  const pinned = index !== -1
+
+  if (!pinned) {
+    return [
+      {
+        label: __DARWIN__ ? 'Pin Repository' : 'Pin repository',
+        action: () => config.onPinRepository(repository),
+      },
+      { type: 'separator' },
+    ]
+  }
+
+  const items: Array<IMenuItem> = [
+    {
+      label: __DARWIN__ ? 'Unpin Repository' : 'Unpin repository',
+      action: () => config.onUnpinRepository(repository),
+    },
+    {
+      label: __DARWIN__ ? 'Move Up in Pinned List' : 'Move up in pinned list',
+      action: () => config.onMovePinnedRepositoryUp(repository),
+      enabled: index > 0,
+    },
+    {
+      label: __DARWIN__
+        ? 'Move Down in Pinned List'
+        : 'Move down in pinned list',
+      action: () => config.onMovePinnedRepositoryDown(repository),
+      enabled: index < config.pinnedRepositories.length - 1,
+    },
+    { type: 'separator' },
   ]
 
   return items
