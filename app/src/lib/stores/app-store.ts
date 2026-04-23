@@ -430,6 +430,8 @@ const RecentRepositoriesKey = 'recently-selected-repositories'
  */
 const RecentRepositoriesLength = 3
 
+const PinnedRepositoriesKey = 'pinned-repositories'
+
 const defaultSidebarWidth: number = 250
 const sidebarWidthConfigKey: string = 'sidebar-width'
 
@@ -557,6 +559,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
   private accounts: ReadonlyArray<Account> = new Array<Account>()
   private repositories: ReadonlyArray<Repository> = new Array<Repository>()
   private recentRepositories: ReadonlyArray<number> = new Array<number>()
+  private pinnedRepositories: ReadonlyArray<number> = new Array<number>()
 
   private selectedRepository: Repository | CloningRepository | null = null
 
@@ -1021,6 +1024,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
     this.repositoriesStore.onDidUpdate(updateRepositories => {
       this.repositories = updateRepositories
+      this.cleanupPinnedRepositories()
+      this.cleanupLocalRepositoryStateLookup()
       this.updateRepositorySelectionAfterRepositoriesChanged()
       this.emitUpdate()
     })
@@ -1187,6 +1192,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
       accounts: this.accounts,
       repositories,
       recentRepositories: this.recentRepositories,
+      pinnedRepositories: this.pinnedRepositories,
       localRepositoryStateLookup: this.localRepositoryStateLookup,
       windowState: this.windowState,
       windowZoomFactor: this.windowZoomFactor,
@@ -2350,6 +2356,9 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
     this.accounts = accounts
     this.repositories = repositories
+    this.pinnedRepositories = getNumberArray(PinnedRepositoriesKey)
+    this.cleanupPinnedRepositories()
+    this.cleanupLocalRepositoryStateLookup()
 
     this.updateRepositorySelectionAfterRepositoriesChanged()
 
@@ -8022,6 +8031,13 @@ export class AppStore extends TypedBaseStore<IAppState> {
       if (repository instanceof CloningRepository) {
         this._removeCloningRepository(repository)
       } else {
+        if (this.pinnedRepositories.includes(repository.id)) {
+          this.pinnedRepositories = this.pinnedRepositories.filter(
+            id => id !== repository.id
+          )
+          setNumberArray(PinnedRepositoriesKey, this.pinnedRepositories)
+        }
+
         await this.repositoriesStore.removeRepository(repository)
       }
     } catch (err) {
@@ -8034,6 +8050,90 @@ export class AppStore extends TypedBaseStore<IAppState> {
       this._closeFoldout(FoldoutType.Repository)
     } else {
       this._showFoldout({ type: FoldoutType.Repository })
+    }
+  }
+
+  public async _pinRepository(repository: Repository): Promise<void> {
+    if (repository.missing || this.pinnedRepositories.includes(repository.id)) {
+      return
+    }
+
+    this.pinnedRepositories = [...this.pinnedRepositories, repository.id]
+    setNumberArray(PinnedRepositoriesKey, this.pinnedRepositories)
+    this.emitUpdate()
+  }
+
+  public async _unpinRepository(repository: Repository): Promise<void> {
+    if (!this.pinnedRepositories.includes(repository.id)) {
+      return
+    }
+
+    this.pinnedRepositories = this.pinnedRepositories.filter(
+      id => id !== repository.id
+    )
+    setNumberArray(PinnedRepositoriesKey, this.pinnedRepositories)
+    this.emitUpdate()
+  }
+
+  public async _movePinnedRepositoryUp(repository: Repository): Promise<void> {
+    const index = this.pinnedRepositories.indexOf(repository.id)
+    if (index <= 0) {
+      return
+    }
+
+    const pinnedRepositories = [...this.pinnedRepositories]
+    ;[pinnedRepositories[index - 1], pinnedRepositories[index]] = [
+      pinnedRepositories[index],
+      pinnedRepositories[index - 1],
+    ]
+
+    this.pinnedRepositories = pinnedRepositories
+    setNumberArray(PinnedRepositoriesKey, this.pinnedRepositories)
+    this.emitUpdate()
+  }
+
+  public async _movePinnedRepositoryDown(
+    repository: Repository
+  ): Promise<void> {
+    const index = this.pinnedRepositories.indexOf(repository.id)
+    if (index < 0 || index >= this.pinnedRepositories.length - 1) {
+      return
+    }
+
+    const pinnedRepositories = [...this.pinnedRepositories]
+    ;[pinnedRepositories[index], pinnedRepositories[index + 1]] = [
+      pinnedRepositories[index + 1],
+      pinnedRepositories[index],
+    ]
+
+    this.pinnedRepositories = pinnedRepositories
+    setNumberArray(PinnedRepositoriesKey, this.pinnedRepositories)
+    this.emitUpdate()
+  }
+
+  private cleanupPinnedRepositories() {
+    const visibleRepositoryIds = new Set(
+      this.repositories.filter(r => !r.missing).map(r => r.id)
+    )
+    const pinnedRepositories = this.pinnedRepositories.filter(id =>
+      visibleRepositoryIds.has(id)
+    )
+
+    if (pinnedRepositories.length === this.pinnedRepositories.length) {
+      return
+    }
+
+    this.pinnedRepositories = pinnedRepositories
+    setNumberArray(PinnedRepositoriesKey, this.pinnedRepositories)
+  }
+
+  private cleanupLocalRepositoryStateLookup() {
+    const visibleRepositoryIds = new Set(this.repositories.map(r => r.id))
+
+    for (const id of this.localRepositoryStateLookup.keys()) {
+      if (!visibleRepositoryIds.has(id)) {
+        this.localRepositoryStateLookup.delete(id)
+      }
     }
   }
 

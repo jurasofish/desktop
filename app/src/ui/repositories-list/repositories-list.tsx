@@ -34,6 +34,7 @@ interface IRepositoriesListProps {
   readonly selectedRepository: Repositoryish | null
   readonly repositories: ReadonlyArray<Repositoryish>
   readonly recentRepositories: ReadonlyArray<number>
+  readonly pinnedRepositories: ReadonlyArray<number>
 
   /** A cache of the latest repository state values, keyed by the repository id */
   readonly localRepositoryStateLookup: ReadonlyMap<
@@ -52,6 +53,18 @@ interface IRepositoriesListProps {
 
   /** Called when the repository should be shown in Finder/Explorer/File Manager. */
   readonly onShowRepository: (repository: Repositoryish) => void
+
+  /** Called when the repository should be pinned. */
+  readonly onPinRepository: (repository: Repositoryish) => void
+
+  /** Called when the repository should be unpinned. */
+  readonly onUnpinRepository: (repository: Repositoryish) => void
+
+  /** Called when the pinned repository should move up in the pinned list. */
+  readonly onMovePinnedRepositoryUp: (repository: Repositoryish) => void
+
+  /** Called when the pinned repository should move down in the pinned list. */
+  readonly onMovePinnedRepositoryDown: (repository: Repositoryish) => void
 
   /** Called when the repository should be opened on GitHub in the default web browser. */
   readonly onViewOnGitHub: (repository: Repositoryish) => void
@@ -112,27 +125,6 @@ export class RepositoriesList extends React.Component<
   IRepositoriesListProps,
   IRepositoriesListState
 > {
-  /**
-   * A memoized function for grouping repositories for display
-   * in the FilterList. The group will not be recomputed as long
-   * as the provided list of repositories is equal to the last
-   * time the method was called (reference equality).
-   */
-  private getRepositoryGroups = memoizeOne(
-    (
-      repositories: ReadonlyArray<Repositoryish> | null,
-      localRepositoryStateLookup: ReadonlyMap<number, ILocalRepositoryState>,
-      recentRepositories: ReadonlyArray<number>
-    ) =>
-      repositories === null
-        ? []
-        : groupRepositories(
-            repositories,
-            localRepositoryStateLookup,
-            recentRepositories
-          )
-  )
-
   /**
    * A memoized function for finding the selected list item based
    * on an IAPIRepository instance. The selected item will not be
@@ -250,6 +242,8 @@ export class RepositoriesList extends React.Component<
       return group.owner.login
     } else if (kind === 'recent') {
       return 'Recent'
+    } else if (kind === 'pinned') {
+      return 'Pinned'
     } else {
       assertNever(kind, `Unknown repository group kind ${kind}`)
     }
@@ -297,6 +291,11 @@ export class RepositoriesList extends React.Component<
       externalEditorLabel: this.props.externalEditorLabel,
       onChangeRepositoryAlias: this.onChangeRepositoryAlias,
       onRemoveRepositoryAlias: this.onRemoveRepositoryAlias,
+      onPinRepository: this.props.onPinRepository,
+      onUnpinRepository: this.props.onUnpinRepository,
+      onMovePinnedRepositoryUp: this.props.onMovePinnedRepositoryUp,
+      onMovePinnedRepositoryDown: this.props.onMovePinnedRepositoryDown,
+      pinnedRepositories: this.props.pinnedRepositories,
       onViewOnGitHub: this.props.onViewOnGitHub,
       onCreateWorktree: enableWorktreeSupport()
         ? this.onCreateWorktree
@@ -322,10 +321,11 @@ export class RepositoriesList extends React.Component<
       this.getGroupLabel(groups[group].identifier)
 
   public render() {
-    const groups = this.getRepositoryGroups(
+    const groups = groupRepositories(
       this.props.repositories,
       this.props.localRepositoryStateLookup,
-      this.props.recentRepositories
+      this.props.recentRepositories,
+      this.props.pinnedRepositories
     )
 
     // So there's two types of selection at play here. There's the repository
