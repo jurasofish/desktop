@@ -101,20 +101,6 @@ export class RepositoryListItem extends React.Component<
       </>
     )
   }
-
-  public shouldComponentUpdate(nextProps: IRepositoryListItemProps): boolean {
-    if (
-      nextProps.repository instanceof Repository &&
-      this.props.repository instanceof Repository
-    ) {
-      return (
-        nextProps.repository.id !== this.props.repository.id ||
-        nextProps.matches !== this.props.matches
-      )
-    } else {
-      return true
-    }
-  }
 }
 
 const renderRepoIndicators: React.FunctionComponent<{

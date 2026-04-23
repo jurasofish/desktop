@@ -1297,6 +1297,46 @@ export class App extends React.Component<IAppProps, IAppState> {
     }
   }
 
+  private pinRepository = (
+    repository: Repository | CloningRepository | null
+  ) => {
+    if (!(repository instanceof Repository)) {
+      return
+    }
+
+    this.props.dispatcher.pinRepository(repository)
+  }
+
+  private unpinRepository = (
+    repository: Repository | CloningRepository | null
+  ) => {
+    if (!(repository instanceof Repository)) {
+      return
+    }
+
+    this.props.dispatcher.unpinRepository(repository)
+  }
+
+  private movePinnedRepositoryUp = (
+    repository: Repository | CloningRepository | null
+  ) => {
+    if (!(repository instanceof Repository)) {
+      return
+    }
+
+    this.props.dispatcher.movePinnedRepositoryUp(repository)
+  }
+
+  private movePinnedRepositoryDown = (
+    repository: Repository | CloningRepository | null
+  ) => {
+    if (!(repository instanceof Repository)) {
+      return
+    }
+
+    this.props.dispatcher.movePinnedRepositoryDown(repository)
+  }
+
   private onConfirmRepoRemoval = async (
     repository: Repository,
     deleteRepoFromDisk: boolean
@@ -3368,11 +3408,16 @@ export class App extends React.Component<IAppProps, IAppState> {
         onSelectionChanged={this.onSelectionChanged}
         repositories={repositories}
         recentRepositories={this.state.recentRepositories}
+        pinnedRepositories={this.state.pinnedRepositories}
         localRepositoryStateLookup={this.state.localRepositoryStateLookup}
         askForConfirmationOnRemoveRepository={
           this.state.askForConfirmationOnRepositoryRemoval
         }
         onRemoveRepository={this.removeRepository}
+        onPinRepository={this.pinRepository}
+        onUnpinRepository={this.unpinRepository}
+        onMovePinnedRepositoryUp={this.movePinnedRepositoryUp}
+        onMovePinnedRepositoryDown={this.movePinnedRepositoryDown}
         onViewOnGitHub={this.viewOnGitHub}
         onOpenInShell={this.openInShell}
         onShowRepository={this.showRepository}
@@ -3575,6 +3620,12 @@ export class App extends React.Component<IAppProps, IAppState> {
       externalEditorLabel: this.externalEditorLabel,
       onChangeRepositoryAlias: onChangeRepositoryAlias,
       onRemoveRepositoryAlias: onRemoveRepositoryAlias,
+      onPinRepository: this.pinRepository,
+      onUnpinRepository: this.unpinRepository,
+      onMovePinnedRepositoryUp: this.movePinnedRepositoryUp,
+      onMovePinnedRepositoryDown: this.movePinnedRepositoryDown,
+      pinnedRepositories: this.state.pinnedRepositories,
+      showPinningActions: false,
       onViewOnGitHub: this.viewOnGitHub,
       onCreateWorktree: enableWorktreeSupport() ? onCreateWorktree : undefined,
       onShowWorktrees: enableWorktreeSupport() ? onShowWorktrees : undefined,

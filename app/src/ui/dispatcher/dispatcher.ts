@@ -225,6 +225,22 @@ export class Dispatcher {
     return this.appStore._removeRepository(repository, moveToTrash)
   }
 
+  public async pinRepository(repository: Repository): Promise<void> {
+    return this.appStore._pinRepository(repository)
+  }
+
+  public async unpinRepository(repository: Repository): Promise<void> {
+    return this.appStore._unpinRepository(repository)
+  }
+
+  public async movePinnedRepositoryUp(repository: Repository): Promise<void> {
+    return this.appStore._movePinnedRepositoryUp(repository)
+  }
+
+  public async movePinnedRepositoryDown(repository: Repository): Promise<void> {
+    return this.appStore._movePinnedRepositoryDown(repository)
+  }
+
   /** Update the repository's `missing` flag. */
   public async updateRepositoryMissing(
     repository: Repository,
