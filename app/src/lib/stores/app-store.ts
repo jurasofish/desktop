@@ -6559,7 +6559,10 @@ export class AppStore extends TypedBaseStore<IAppState> {
   }
 
   /** Open a path to a repository or file using the user's configured editor */
-  public async _openInExternalEditor(fullPath: string): Promise<void> {
+  public async _openInExternalEditor(
+    fullPath: string,
+    repositoryPath?: string
+  ): Promise<void> {
     const { selectedExternalEditor, useCustomEditor, customEditor } =
       this.getState()
 
@@ -6578,7 +6581,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
           return
         }
 
-        await launchExternalEditor(fullPath, match)
+        await launchExternalEditor(fullPath, match, repositoryPath)
       }
     } catch (error) {
       this.emitError(error)
@@ -6589,7 +6592,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
   public async _openInSelectedExternalEditor(
     fullPath: string,
     selectedEditor: string | null,
-    customEditor: ICustomIntegration | null
+    customEditor: ICustomIntegration | null,
+    repositoryPath?: string
   ): Promise<void> {
     try {
       if (customEditor && customEditor.path) {
@@ -6612,7 +6616,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
         return
       }
 
-      await launchExternalEditor(fullPath, match)
+      await launchExternalEditor(fullPath, match, repositoryPath)
     } catch (error) {
       this.emitError(error)
     }

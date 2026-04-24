@@ -5,6 +5,7 @@ import { truncateWithEllipsis } from '../../lib/truncate-with-ellipsis'
 import { getLogDirectoryPath } from '../../lib/logging/get-log-path'
 import { UNSAFE_openDirectory } from '../shell'
 import { MenuLabelsEvent } from '../../models/menu-labels'
+import { getOpenInExternalEditorAccelerator } from '../../lib/editors/pycharm'
 import * as ipcWebContents from '../ipc-webcontents'
 import { mkdir } from 'fs/promises'
 import { buildTestMenu } from './build-test-menu'
@@ -421,7 +422,9 @@ export function buildDefaultMenu({
           ? `Open in ${selectedExternalEditor ?? 'External Editor'}`
           : `&Open in ${selectedExternalEditor ?? 'external editor'}`,
         id: 'open-external-editor',
-        accelerator: 'CmdOrCtrl+Shift+A',
+        accelerator: getOpenInExternalEditorAccelerator(
+          selectedExternalEditor
+        ),
         click: emit('open-external-editor'),
       },
       {

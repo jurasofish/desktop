@@ -1577,8 +1577,11 @@ export class Dispatcher {
   /**
    * Opens a path in the external editor selected by the user.
    */
-  public async openInExternalEditor(fullPath: string): Promise<void> {
-    return this.appStore._openInExternalEditor(fullPath)
+  public async openInExternalEditor(
+    fullPath: string,
+    repositoryPath?: string
+  ): Promise<void> {
+    return this.appStore._openInExternalEditor(fullPath, repositoryPath)
   }
 
   /**
@@ -1587,12 +1590,14 @@ export class Dispatcher {
   public async openInSelectedExternalEditor(
     fullPath: string,
     selectedEditor: string | null,
-    customEditor: ICustomIntegration | null
+    customEditor: ICustomIntegration | null,
+    repositoryPath?: string
   ): Promise<void> {
     return this.appStore._openInSelectedExternalEditor(
       fullPath,
       selectedEditor,
-      customEditor
+      customEditor,
+      repositoryPath
     )
   }
 
