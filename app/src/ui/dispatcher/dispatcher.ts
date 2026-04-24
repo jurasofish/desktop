@@ -1773,9 +1773,17 @@ export class Dispatcher {
 
   /**
    * Opens a path in the external editor selected by the user.
+   *
+   * `line` is an optional one-based line number to jump to. It is currently
+   * only honoured by the PyCharm-on-macOS integration; other editors ignore
+   * it.
    */
-  public async openInExternalEditor(fullPath: string): Promise<void> {
-    return this.appStore._openInExternalEditor(fullPath)
+  public async openInExternalEditor(
+    fullPath: string,
+    repositoryPath?: string,
+    line?: number
+  ): Promise<void> {
+    return this.appStore._openInExternalEditor(fullPath, repositoryPath, line)
   }
 
   /** Open the selected checkout in the GitHub Copilot app. */
@@ -1800,12 +1808,14 @@ export class Dispatcher {
   public async openInSelectedExternalEditor(
     fullPath: string,
     selectedEditor: string | null,
-    customEditor: ICustomIntegration | null
+    customEditor: ICustomIntegration | null,
+    repositoryPath?: string
   ): Promise<void> {
     return this.appStore._openInSelectedExternalEditor(
       fullPath,
       selectedEditor,
-      customEditor
+      customEditor,
+      repositoryPath
     )
   }
 
