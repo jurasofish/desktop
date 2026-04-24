@@ -180,8 +180,18 @@
   - [ ] Select all (Mac: `⌘A`; Windows: `Ctrl+A`)
 
 ### View top-level menu
-  - [ ] Show Changes (Mac: `⌘1`; Windows: `Ctrl+1`)
-  - [ ] Show History (Mac: `⌘2`; Windows: `Ctrl+2`)
+  - [ ] Show Changes
+  - [ ] Show History
+  - [ ] Show Pinned Repository 1 (Mac: `⌃1`; Windows: `Ctrl+1`)
+  - [ ] Show Pinned Repository 2 (Mac: `⌃2`; Windows: `Ctrl+2`)
+  - [ ] Show Pinned Repository 3 (Mac: `⌃3`; Windows: `Ctrl+3`)
+  - [ ] Show Pinned Repository 4 (Mac: `⌃4`; Windows: `Ctrl+4`)
+  - [ ] Show Pinned Repository 5 (Mac: `⌃5`; Windows: `Ctrl+5`)
+  - [ ] Show Pinned Repository 6 (Mac: `⌃6`; Windows: `Ctrl+6`)
+  - [ ] Show Pinned Repository 7 (Mac: `⌃7`; Windows: `Ctrl+7`)
+  - [ ] Show Pinned Repository 8 (Mac: `⌃8`; Windows: `Ctrl+8`)
+  - [ ] Show Pinned Repository 9 (Mac: `⌃9`; Windows: `Ctrl+9`)
+  - [ ] Show Pinned Repository 10 (Mac: `⌃0`; Windows: `Ctrl+0`)
   - [ ] Show Repositories List (Mac: `⌘T`; Windows: `Ctrl+T`)
   - [ ] Show Branches List (Mac: `⌘B`; Windows: `Ctrl+B`)
   - [ ] Go to Summary (Mac: `⌘G`; Windows: `Ctrl+G`)
