@@ -217,6 +217,7 @@
   - [ ] Show in Finder/Explorer (Mac: `⇧⌘F`; Windows: `Ctrl+Shift+F`)
     - [ ] Local repository is opened
   - [ ] Open in [insert editor] (Mac: `⇧⌘A`; Windows: `Ctrl+Shift+A`); see External Editor option in preferences
+    - [ ] When the selected editor is PyCharm on macOS, the shortcut is `⌃E`
     - [ ] Secondary modal appears if no Editors set; option to download the default editor
   - [ ] Repository settings...
     - [ ] Remote path can be edited for existing repository; origin already set. Cannot be empty string, else error message.
