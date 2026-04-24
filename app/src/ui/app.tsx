@@ -31,6 +31,7 @@ import {
   isWindowsAndNoLongerSupportedByElectron,
 } from '../lib/get-os'
 import { MenuEvent, isTestMenuEvent } from '../main-process/menu'
+import { getPinnedRepositoryAtIndex } from '../lib/pinned-repositories'
 import {
   Repository,
   getGitHubHtmlUrl,
@@ -471,6 +472,26 @@ export class App extends React.Component<IAppProps, IAppState> {
         return this.showChanges(true)
       case 'show-history':
         return this.showHistory(true)
+      case 'show-pinned-repository-1':
+        return this.showPinnedRepository(0)
+      case 'show-pinned-repository-2':
+        return this.showPinnedRepository(1)
+      case 'show-pinned-repository-3':
+        return this.showPinnedRepository(2)
+      case 'show-pinned-repository-4':
+        return this.showPinnedRepository(3)
+      case 'show-pinned-repository-5':
+        return this.showPinnedRepository(4)
+      case 'show-pinned-repository-6':
+        return this.showPinnedRepository(5)
+      case 'show-pinned-repository-7':
+        return this.showPinnedRepository(6)
+      case 'show-pinned-repository-8':
+        return this.showPinnedRepository(7)
+      case 'show-pinned-repository-9':
+        return this.showPinnedRepository(8)
+      case 'show-pinned-repository-0':
+        return this.showPinnedRepository(9)
       case 'choose-repository':
         return this.chooseRepository()
       case 'add-local-repository':
@@ -942,6 +963,29 @@ export class App extends React.Component<IAppProps, IAppState> {
     if (shouldFocusChanges) {
       this.repositoryViewRef.current?.setFocusChangesNeeded()
     }
+  }
+
+  private async showPinnedRepository(index: number) {
+    const repository = getPinnedRepositoryAtIndex(
+      this.state.repositories,
+      this.state.pinnedRepositories,
+      index
+    )
+
+    if (repository === null) {
+      return
+    }
+
+    const selectedRepository = this.state.selectedState?.repository
+    if (
+      selectedRepository instanceof Repository &&
+      selectedRepository.id === repository.id
+    ) {
+      return
+    }
+
+    await this.props.dispatcher.closeCurrentFoldout()
+    return this.props.dispatcher.selectRepository(repository)
   }
 
   private chooseRepository() {

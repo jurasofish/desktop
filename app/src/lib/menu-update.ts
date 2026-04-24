@@ -126,6 +126,16 @@ const allMenuIds: ReadonlyArray<MenuIDs> = [
   'create-branch',
   'show-changes',
   'show-history',
+  'show-pinned-repository-1',
+  'show-pinned-repository-2',
+  'show-pinned-repository-3',
+  'show-pinned-repository-4',
+  'show-pinned-repository-5',
+  'show-pinned-repository-6',
+  'show-pinned-repository-7',
+  'show-pinned-repository-8',
+  'show-pinned-repository-9',
+  'show-pinned-repository-0',
   'show-repository-list',
   'show-branches-list',
   'open-working-directory',
@@ -255,11 +265,31 @@ function getRepositoryMenuBuilder(state: IAppState): MenuStateBuilder {
     'create-worktree',
   ]
 
+  const pinnedRepositoryShortcutIds: ReadonlyArray<MenuIDs> = [
+    'show-pinned-repository-1',
+    'show-pinned-repository-2',
+    'show-pinned-repository-3',
+    'show-pinned-repository-4',
+    'show-pinned-repository-5',
+    'show-pinned-repository-6',
+    'show-pinned-repository-7',
+    'show-pinned-repository-8',
+    'show-pinned-repository-9',
+    'show-pinned-repository-0',
+  ]
+
   const menuStateBuilder = new MenuStateBuilder()
 
   const windowOpen = state.windowState !== 'hidden'
   const inWelcomeFlow = state.showWelcomeFlow
   const repositoryActive = windowOpen && repositorySelected && !inWelcomeFlow
+
+  for (const [index, id] of pinnedRepositoryShortcutIds.entries()) {
+    menuStateBuilder.setEnabled(
+      id,
+      windowOpen && !inWelcomeFlow && state.pinnedRepositories.length > index
+    )
+  }
 
   if (repositoryActive) {
     for (const id of repositoryScopedIDs) {
