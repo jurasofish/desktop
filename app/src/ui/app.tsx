@@ -14,7 +14,11 @@ import { Dispatcher } from './dispatcher'
 import { AppStore, GitHubUserStore, IssuesStore } from '../lib/stores'
 import { assertNever } from '../lib/fatal-error'
 import { shell } from '../lib/app-shell'
-import { updateStore, UpdateStatus } from './lib/update-store'
+import {
+  areApplicationUpdatesEnabled,
+  updateStore,
+  UpdateStatus,
+} from './lib/update-store'
 import { RetryAction } from '../models/retry-actions'
 import { FetchType } from '../models/fetch'
 import { shouldRenderApplicationMenu } from './lib/features'
@@ -392,17 +396,19 @@ export class App extends React.Component<IAppProps, IAppState> {
     this.props.dispatcher.installGlobalLFSFilters(false)
 
     // We only want to automatically check for updates on beta and prod
-    if (
-      __RELEASE_CHANNEL__ !== 'development' &&
-      __RELEASE_CHANNEL__ !== 'test'
-    ) {
-      setInterval(() => this.checkForUpdates(true), UpdateCheckInterval)
-      this.checkForUpdates(true)
-    } else if (await updateStore.isUpdateShowcase()) {
-      // The only purpose of this call is so we can see the showcase on dev/test
-      // env. Prod and beta environment will trigger this during automatic check
-      // for updates.
-      this.props.dispatcher.setUpdateShowCaseVisibility(true)
+    if (areApplicationUpdatesEnabled()) {
+      if (
+        __RELEASE_CHANNEL__ !== 'development' &&
+        __RELEASE_CHANNEL__ !== 'test'
+      ) {
+        setInterval(() => this.checkForUpdates(true), UpdateCheckInterval)
+        this.checkForUpdates(true)
+      } else if (await updateStore.isUpdateShowcase()) {
+        // The only purpose of this call is so we can see the showcase on dev/test
+        // env. Prod and beta environment will trigger this during automatic check
+        // for updates.
+        this.props.dispatcher.setUpdateShowCaseVisibility(true)
+      }
     }
 
     log.info(`launching: ${getVersion()} (${getOS()})`)
@@ -646,7 +652,11 @@ export class App extends React.Component<IAppProps, IAppState> {
     inBackground: boolean,
     skipGuidCheck: boolean = false
   ) {
-    if (__LINUX__ || __RELEASE_CHANNEL__ === 'development') {
+    if (
+      !areApplicationUpdatesEnabled() ||
+      __LINUX__ ||
+      __RELEASE_CHANNEL__ === 'development'
+    ) {
       return
     }
 
