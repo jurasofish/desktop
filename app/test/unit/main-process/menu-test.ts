@@ -1,8 +1,48 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert'
-import { ensureItemIds } from '../../../src/main-process/menu'
+import { buildDefaultMenu, ensureItemIds } from '../../../src/main-process/menu'
 
 describe('main-process menu', () => {
+  describe('buildDefaultMenu', () => {
+    it('uses Ctrl+E for PyCharm on macOS', () => {
+      const menu = buildDefaultMenu({
+        selectedExternalEditor: 'PyCharm',
+        selectedShell: null,
+        askForConfirmationOnForcePush: true,
+        askForConfirmationOnRepositoryRemoval: true,
+      })
+
+      const viewMenu = menu.items.find(item => item.label === 'View')
+      const openInExternalEditor = viewMenu?.submenu?.items.find(
+        item => item.id === 'open-external-editor'
+      )
+
+      assert.equal(
+        openInExternalEditor?.accelerator,
+        __DARWIN__ ? 'Ctrl+E' : 'CommandOrControl+Shift+A'
+      )
+    })
+
+    it('keeps the default shortcut for non-PyCharm editors', () => {
+      const menu = buildDefaultMenu({
+        selectedExternalEditor: 'Visual Studio Code',
+        selectedShell: null,
+        askForConfirmationOnForcePush: true,
+        askForConfirmationOnRepositoryRemoval: true,
+      })
+
+      const viewMenu = menu.items.find(item => item.label === 'View')
+      const openInExternalEditor = viewMenu?.submenu?.items.find(
+        item => item.id === 'open-external-editor'
+      )
+
+      assert.equal(
+        openInExternalEditor?.accelerator,
+        'CommandOrControl+Shift+A'
+      )
+    })
+  })
+
   describe('ensureItemIds', () => {
     it('leaves explicitly specified ids', () => {
       const template: Electron.MenuItemConstructorOptions[] = [

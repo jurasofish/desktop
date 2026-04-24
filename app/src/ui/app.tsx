@@ -3062,7 +3062,12 @@ export class App extends React.Component<IAppProps, IAppState> {
   }
 
   private openFileInExternalEditor = (fullPath: string) => {
-    this.props.dispatcher.openInExternalEditor(fullPath)
+    const repository = this.getRepository()
+    if (!(repository instanceof Repository)) {
+      return
+    }
+
+    this.props.dispatcher.openInExternalEditor(fullPath, repository.path)
   }
 
   private openInExternalEditor = (
@@ -3098,7 +3103,7 @@ export class App extends React.Component<IAppProps, IAppState> {
     }
 
     const fullPath = Path.join(repository.path, path)
-    this.props.dispatcher.openInExternalEditor(fullPath)
+    this.props.dispatcher.openInExternalEditor(fullPath, repository.path)
   }
 
   private showRepository = (repository: Repository | CloningRepository) => {

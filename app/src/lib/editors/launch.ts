@@ -1,6 +1,9 @@
+import * as Path from 'path'
 import { spawn, SpawnOptions } from 'child_process'
 import { pathExists } from '../../ui/lib/path-exists'
+import { execFile } from '../exec-file'
 import { ExternalEditorError, FoundEditor } from './shared'
+import { isPyCharmEditor } from './pycharm'
 import {
   expandTargetPathArgument,
   ICustomIntegration,
@@ -11,7 +14,8 @@ async function launchEditor(
   editorPath: string,
   args: readonly string[],
   editorName: string,
-  spawnAsDarwinApp: boolean
+  spawnAsDarwinApp: boolean,
+  cwd?: string
 ) {
   const exists = await pathExists(editorPath)
   const label = __DARWIN__ ? 'Settings' : 'Options'
@@ -29,7 +33,16 @@ async function launchEditor(
       // Desktop app is closed.
       detached: true,
       stdio: 'ignore',
+      cwd,
     }
+
+    const command = spawnAsDarwinApp
+      ? ['open', '-a', editorPath, ...args]
+      : [editorPath, ...args]
+
+    log.debug(
+      `[external-editor] launching ${command.join(' ')}${cwd ? ` (cwd: ${cwd})` : ''}`
+    )
 
     const child = spawnAsDarwinApp
       ? spawn('open', ['-a', editorPath, ...args], opts)
@@ -52,14 +65,108 @@ async function launchEditor(
   })
 }
 
+async function getMacOSAppExecutablePath(
+  appPath: string,
+  editorName: string
+): Promise<string> {
+  const infoPlistPath = Path.join(appPath, 'Contents', 'Info.plist')
+
+  try {
+    const executable = (await execFile('/usr/libexec/PlistBuddy', [
+      '-c',
+      'Print :CFBundleExecutable',
+      infoPlistPath,
+    ])).stdout.trim()
+
+    if (executable.length === 0) {
+      throw new Error('Empty CFBundleExecutable value')
+    }
+
+    return Path.join(appPath, 'Contents', 'MacOS', executable)
+  } catch (e) {
+    log.error(
+      `Failed to resolve executable path for ${editorName}`,
+      e instanceof Error ? e : undefined
+    )
+    throw new ExternalEditorError(
+      `Something went wrong while trying to start ${editorName}. Please open Settings and try another editor.`,
+      { openPreferences: true }
+    )
+  }
+}
+
+// PyCharm on macOS can fail for root-level files such as README.md when a
+// project path and file path are passed as separate plain arguments. Launching
+// the project first and then passing a project-relative file path with
+// `--line 1` reliably opens both root and nested files in the correct window.
+function getPyCharmFileArgs(
+  targetPath: string,
+  repositoryPath: string
+): ReadonlyArray<string> {
+  const relativePath = Path.relative(repositoryPath, targetPath)
+
+  if (
+    relativePath.length === 0 ||
+    relativePath.startsWith('..') ||
+    Path.isAbsolute(relativePath)
+  ) {
+    return [targetPath]
+  }
+
+  const projectRelativePath =
+    relativePath.startsWith('.') || relativePath.startsWith(Path.sep)
+      ? relativePath
+      : `.${Path.sep}${relativePath}`
+
+  return [repositoryPath, '--line', '1', projectRelativePath]
+}
+
+async function launchPyCharmOnDarwin(
+  targetPath: string,
+  editor: FoundEditor,
+  repositoryPath?: string
+): Promise<void> {
+  const executablePath = await getMacOSAppExecutablePath(
+    editor.path,
+    `'${editor.editor}'`
+  )
+  const args =
+    repositoryPath !== undefined && repositoryPath !== targetPath
+      ? getPyCharmFileArgs(targetPath, repositoryPath)
+      : [targetPath]
+
+  return launchEditor(
+    executablePath,
+    args,
+    `'${editor.editor}'`,
+    false,
+    repositoryPath
+  )
+}
+
 /**
  * Open a given file or folder in the desired external editor.
  *
  * @param fullPath A folder or file path to pass as an argument when launching the editor.
  * @param editor The external editor to launch.
+ * @param repositoryPath The repository path to provide when the target is a file.
  */
-export const launchExternalEditor = (fullPath: string, editor: FoundEditor) =>
-  launchEditor(editor.path, [fullPath], `'${editor.editor}'`, __DARWIN__)
+export async function launchExternalEditor(
+  fullPath: string,
+  editor: FoundEditor,
+  repositoryPath?: string
+): Promise<void> {
+  if (__DARWIN__ && isPyCharmEditor(editor.editor)) {
+    return launchPyCharmOnDarwin(fullPath, editor, repositoryPath)
+  }
+
+  return launchEditor(
+    editor.path,
+    [fullPath],
+    `'${editor.editor}'`,
+    __DARWIN__
+  )
+}
 
 /**
  * Open a given file or folder in the desired custom external editor.
@@ -82,5 +189,10 @@ export const launchCustomExternalEditor = (
   const spawnAsDarwinApp = __DARWIN__ && customEditor.bundleID !== undefined
   const editorName = `custom editor at path '${customEditor.path}'`
 
-  return launchEditor(customEditor.path, args, editorName, spawnAsDarwinApp)
+  return launchEditor(
+    customEditor.path,
+    args,
+    editorName,
+    spawnAsDarwinApp
+  )
 }
