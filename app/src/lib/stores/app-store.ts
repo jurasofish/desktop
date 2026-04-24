@@ -4025,6 +4025,11 @@ export class AppStore extends TypedBaseStore<IAppState> {
   /** This shouldn't be called directly. See `Dispatcher`. */
   public async _showFoldout(foldout: Foldout): Promise<void> {
     this.currentFoldout = foldout
+
+    if (foldout.type === FoldoutType.Repository) {
+      this.repositoryFilterText = ''
+    }
+
     this.emitUpdate()
 
     // If the user is opening the repository list and we haven't yet
