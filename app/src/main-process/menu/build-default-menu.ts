@@ -6,6 +6,7 @@ import { getLogDirectoryPath } from '../../lib/logging/get-log-path'
 import { UNSAFE_openDirectory } from '../shell'
 import { enableWorktreeSupport } from '../../lib/feature-flag'
 import { MenuLabelsEvent } from '../../models/menu-labels'
+import { getOpenInExternalEditorAccelerator } from '../../lib/editors/pycharm'
 import * as ipcWebContents from '../ipc-webcontents'
 import { mkdir } from 'fs/promises'
 import { buildTestMenu } from './build-test-menu'
@@ -302,7 +303,6 @@ export function buildDefaultMenuTemplate({
       separator,
       {
         label: __DARWIN__ ? 'Reset Zoom' : 'Reset zoom',
-        accelerator: 'CmdOrCtrl+0',
         click: zoom(ZoomDirection.Reset),
       },
       {
@@ -320,7 +320,6 @@ export function buildDefaultMenuTemplate({
           ? 'Expand Active Resizable'
           : 'Expand active resizable',
         id: 'increase-active-resizable-width',
-        accelerator: 'CmdOrCtrl+9',
         click: emit('increase-active-resizable-width'),
       },
       {
@@ -328,7 +327,6 @@ export function buildDefaultMenuTemplate({
           ? 'Contract Active Resizable'
           : 'Contract active resizable',
         id: 'decrease-active-resizable-width',
-        accelerator: 'CmdOrCtrl+8',
         click: emit('decrease-active-resizable-width'),
       },
       separator,
@@ -429,7 +427,7 @@ export function buildDefaultMenuTemplate({
           ? `Open in ${selectedExternalEditor ?? 'External Editor'}`
           : `&Open in ${selectedExternalEditor ?? 'external editor'}`,
         id: 'open-external-editor',
-        accelerator: 'CmdOrCtrl+Shift+A',
+        accelerator: getOpenInExternalEditorAccelerator(selectedExternalEditor),
         click: emit('open-external-editor'),
       },
       {

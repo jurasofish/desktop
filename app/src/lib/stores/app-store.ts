@@ -7411,7 +7411,11 @@ export class AppStore extends TypedBaseStore<IAppState> {
   }
 
   /** Open a path to a repository or file using the user's configured editor */
-  public async _openInExternalEditor(fullPath: string): Promise<void> {
+  public async _openInExternalEditor(
+    fullPath: string,
+    repositoryPath?: string,
+    line?: number
+  ): Promise<void> {
     const { selectedExternalEditor, useCustomEditor, customEditor } =
       this.getState()
 
@@ -7430,7 +7434,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
           return
         }
 
-        await launchExternalEditor(fullPath, match)
+        await launchExternalEditor(fullPath, match, repositoryPath, line)
       }
     } catch (error) {
       this.emitError(error)
@@ -7441,7 +7445,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
   public async _openInSelectedExternalEditor(
     fullPath: string,
     selectedEditor: string | null,
-    customEditor: ICustomIntegration | null
+    customEditor: ICustomIntegration | null,
+    repositoryPath?: string
   ): Promise<void> {
     try {
       if (customEditor && customEditor.path) {
@@ -7464,7 +7469,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
         return
       }
 
-      await launchExternalEditor(fullPath, match)
+      await launchExternalEditor(fullPath, match, repositoryPath)
     } catch (error) {
       this.emitError(error)
     }
@@ -8115,9 +8120,15 @@ export class AppStore extends TypedBaseStore<IAppState> {
     const visibleRepositoryIds = new Set(
       this.repositories.filter(r => !r.missing).map(r => r.id)
     )
-    const pinnedRepositories = this.pinnedRepositories.filter(id =>
-      visibleRepositoryIds.has(id)
-    )
+    const seenRepositoryIds = new Set<number>()
+    const pinnedRepositories = new Array<number>()
+
+    for (const id of this.pinnedRepositories) {
+      if (visibleRepositoryIds.has(id) && !seenRepositoryIds.has(id)) {
+        seenRepositoryIds.add(id)
+        pinnedRepositories.push(id)
+      }
+    }
 
     if (pinnedRepositories.length === this.pinnedRepositories.length) {
       return
