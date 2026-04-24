@@ -29,6 +29,17 @@ Filtering does not need special treatment beyond keeping the implementation
 simple and predictable. If pinned matches continue to appear under `Pinned`
 while filtering, that is fine.
 
+Pinned repositories can also be opened directly with `Ctrl+1` through
+`Ctrl+0`, mapped to the first ten pinned repositories in stored order. `Ctrl+1`
+selects the first pinned repository, `Ctrl+9` selects the ninth, and `Ctrl+0`
+selects the tenth. If a shortcut refers to a position with no pinned
+repository, it does nothing.
+
+These shortcuts replace the previous `Show Changes`, `Show History`, and `Reset
+Zoom` accelerators, and also take over the `Ctrl+8` and `Ctrl+9` combinations
+that were previously used for zoom controls. The menu commands still exist, but
+pinned repository selection now owns the number-row shortcuts.
+
 This feature does not need a feature flag or extra settings surface.
 
 See 
