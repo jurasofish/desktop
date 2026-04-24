@@ -28,6 +28,12 @@ import { getUserAgent } from '../../lib/http'
 /** The last version a showcase was seen. */
 export const lastShowCaseVersionSeen = 'version-of-last-showcase'
 
+// This custom build is intended to stay pinned to local modifications without
+// being replaced by downloaded application updates.
+export function areApplicationUpdatesEnabled(): boolean {
+  return false
+}
+
 /** The states the auto updater can be in. */
 export enum UpdateStatus {
   /** The auto updater is checking for updates. */
@@ -198,6 +204,10 @@ class UpdateStore {
    *                       attempt to retrieve the latest available deployment.
    */
   public async checkForUpdates(inBackground: boolean, skipGuidCheck: boolean) {
+    if (!areApplicationUpdatesEnabled()) {
+      return
+    }
+
     // An update has been downloaded and the app is waiting to be restarted.
     // Checking for updates again may result in the running app being nuked
     // when it finds a subsequent update on Windows, or the "Quit and Update"

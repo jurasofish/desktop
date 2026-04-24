@@ -9,7 +9,11 @@ import {
   DefaultDialogFooter,
 } from '../dialog'
 import { LinkButton } from '../lib/link-button'
-import { IUpdateState, UpdateStatus } from '../lib/update-store'
+import {
+  areApplicationUpdatesEnabled,
+  IUpdateState,
+  UpdateStatus,
+} from '../lib/update-store'
 import { Loading } from '../lib/loading'
 import { RelativeTime } from '../relative-time'
 import { assertNever } from '../../lib/fatal-error'
@@ -90,8 +94,9 @@ class UpdateInfo extends React.Component<IUpdateInfoProps> {
 export class About extends React.Component<IAboutProps> {
   private get canCheckForUpdates() {
     return (
-      __RELEASE_CHANNEL__ !== 'development' ||
-      this.props.allowDevelopment === true
+      areApplicationUpdatesEnabled() &&
+      (__RELEASE_CHANNEL__ !== 'development' ||
+        this.props.allowDevelopment === true)
     )
   }
 
@@ -146,6 +151,10 @@ export class About extends React.Component<IAboutProps> {
       return null
     }
 
+    if (!areApplicationUpdatesEnabled()) {
+      return <p>Application updates are disabled for this build.</p>
+    }
+
     if (!this.canCheckForUpdates) {
       return (
         <p>
@@ -197,7 +206,7 @@ export class About extends React.Component<IAboutProps> {
   }
 
   private renderUpdateErrors() {
-    if (__LINUX__) {
+    if (__LINUX__ || !areApplicationUpdatesEnabled()) {
       return null
     }
 
