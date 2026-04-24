@@ -6,6 +6,7 @@ import { getLogDirectoryPath } from '../../lib/logging/get-log-path'
 import { UNSAFE_openDirectory } from '../shell'
 import { enableWorktreeSupport } from '../../lib/feature-flag'
 import { MenuLabelsEvent } from '../../models/menu-labels'
+import { getOpenInExternalEditorAccelerator } from '../../lib/editors/pycharm'
 import * as ipcWebContents from '../ipc-webcontents'
 import { mkdir } from 'fs/promises'
 import { buildTestMenu } from './build-test-menu'
@@ -429,7 +430,9 @@ export function buildDefaultMenuTemplate({
           ? `Open in ${selectedExternalEditor ?? 'External Editor'}`
           : `&Open in ${selectedExternalEditor ?? 'external editor'}`,
         id: 'open-external-editor',
-        accelerator: 'CmdOrCtrl+Shift+A',
+        accelerator: getOpenInExternalEditorAccelerator(
+          selectedExternalEditor
+        ),
         click: emit('open-external-editor'),
       },
       {

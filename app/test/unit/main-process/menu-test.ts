@@ -67,7 +67,59 @@ function findDuplicateAccessKeys(
   return duplicates
 }
 
+function findMenuItem(
+  items: ReadonlyArray<Electron.MenuItemConstructorOptions>,
+  id: string
+): Electron.MenuItemConstructorOptions | undefined {
+  for (const item of items) {
+    if (item.id === id) {
+      return item
+    }
+
+    if (Array.isArray(item.submenu)) {
+      const nestedItem = findMenuItem(item.submenu, id)
+      if (nestedItem !== undefined) {
+        return nestedItem
+      }
+    }
+  }
+
+  return undefined
+}
+
 describe('main-process menu', () => {
+  describe('external editor accelerator', () => {
+    const baseParams: MenuLabelsEvent = {
+      selectedShell: null,
+      selectedExternalEditor: null,
+      askForConfirmationOnForcePush: false,
+      askForConfirmationOnRepositoryRemoval: false,
+    }
+
+    it('uses the PyCharm accelerator', () => {
+      const item = findMenuItem(
+        buildDefaultMenuTemplate({ ...baseParams, selectedExternalEditor: 'PyCharm' }),
+        'open-external-editor'
+      )
+
+      assert.equal(
+        item?.accelerator,
+        __DARWIN__ ? 'Ctrl+E' : 'CmdOrCtrl+Shift+A'
+      )
+    })
+
+    it('uses the default accelerator for other editors', () => {
+      const item = findMenuItem(
+        buildDefaultMenuTemplate({
+          ...baseParams,
+          selectedExternalEditor: 'Visual Studio Code',
+        }),
+        'open-external-editor'
+      )
+
+      assert.equal(item?.accelerator, 'CmdOrCtrl+Shift+A')
+    })
+  })
   describe('ensureItemIds', () => {
     it('leaves explicitly specified ids', () => {
       const template: Electron.MenuItemConstructorOptions[] = [
