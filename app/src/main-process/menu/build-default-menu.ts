@@ -182,14 +182,74 @@ export function buildDefaultMenuTemplate({
       {
         label: __DARWIN__ ? 'Show Changes' : '&Changes',
         id: 'show-changes',
-        accelerator: 'CmdOrCtrl+1',
         click: emit('show-changes'),
       },
       {
         label: __DARWIN__ ? 'Show History' : '&History',
         id: 'show-history',
-        accelerator: 'CmdOrCtrl+2',
         click: emit('show-history'),
+      },
+      {
+        label: __DARWIN__ ? 'Show Pinned Repository 1' : 'Pinned repository &1',
+        id: 'show-pinned-repository-1',
+        accelerator: 'Ctrl+1',
+        click: emit('show-pinned-repository-1'),
+      },
+      {
+        label: __DARWIN__ ? 'Show Pinned Repository 2' : 'Pinned repository &2',
+        id: 'show-pinned-repository-2',
+        accelerator: 'Ctrl+2',
+        click: emit('show-pinned-repository-2'),
+      },
+      {
+        label: __DARWIN__ ? 'Show Pinned Repository 3' : 'Pinned repository &3',
+        id: 'show-pinned-repository-3',
+        accelerator: 'Ctrl+3',
+        click: emit('show-pinned-repository-3'),
+      },
+      {
+        label: __DARWIN__ ? 'Show Pinned Repository 4' : 'Pinned repository &4',
+        id: 'show-pinned-repository-4',
+        accelerator: 'Ctrl+4',
+        click: emit('show-pinned-repository-4'),
+      },
+      {
+        label: __DARWIN__ ? 'Show Pinned Repository 5' : 'Pinned repository &5',
+        id: 'show-pinned-repository-5',
+        accelerator: 'Ctrl+5',
+        click: emit('show-pinned-repository-5'),
+      },
+      {
+        label: __DARWIN__ ? 'Show Pinned Repository 6' : 'Pinned repository &6',
+        id: 'show-pinned-repository-6',
+        accelerator: 'Ctrl+6',
+        click: emit('show-pinned-repository-6'),
+      },
+      {
+        label: __DARWIN__ ? 'Show Pinned Repository 7' : 'Pinned repository &7',
+        id: 'show-pinned-repository-7',
+        accelerator: 'Ctrl+7',
+        click: emit('show-pinned-repository-7'),
+      },
+      {
+        label: __DARWIN__ ? 'Show Pinned Repository 8' : 'Pinned repository &8',
+        id: 'show-pinned-repository-8',
+        accelerator: 'Ctrl+8',
+        click: emit('show-pinned-repository-8'),
+      },
+      {
+        label: __DARWIN__ ? 'Show Pinned Repository 9' : 'Pinned repository &9',
+        id: 'show-pinned-repository-9',
+        accelerator: 'Ctrl+9',
+        click: emit('show-pinned-repository-9'),
+      },
+      {
+        label: __DARWIN__
+          ? 'Show Pinned Repository 10'
+          : 'Pinned repository 1&0',
+        id: 'show-pinned-repository-0',
+        accelerator: 'Ctrl+0',
+        click: emit('show-pinned-repository-0'),
       },
       {
         label: __DARWIN__ ? 'Show Repository List' : 'Repository &list',
