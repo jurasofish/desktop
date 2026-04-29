@@ -137,6 +137,10 @@ interface IBranchListProps {
 
   readonly onCreateBranchFromBranch?: (branchName: string) => void
 
+  readonly onSquashMergeIntoCurrentBranch?: (branchName: string) => void
+
+  readonly canSquashMergeIntoCurrentBranch?: (branchName: string) => boolean
+
   readonly onHardResetToBranch?: (branchName: string) => void
 
   readonly canHardResetToBranch?: (branchName: string) => boolean
@@ -296,6 +300,8 @@ export class BranchList extends React.Component<
       onRenameBranch,
       onDeleteBranch,
      onCheckoutInNewWorktree, onCreateBranchFromBranch,
+      onSquashMergeIntoCurrentBranch,
+      canSquashMergeIntoCurrentBranch,
       onHardResetToBranch,
       canHardResetToBranch,
     } = this.props
@@ -305,6 +311,7 @@ export class BranchList extends React.Component<
       onDeleteBranch === undefined &&
       onCheckoutInNewWorktree === undefined &&
       onCreateBranchFromBranch === undefined &&
+      onSquashMergeIntoCurrentBranch === undefined &&
       onHardResetToBranch === undefined
     ) {
       return
@@ -316,6 +323,8 @@ export class BranchList extends React.Component<
       branch,
       onRenameBranch,
       onCreateBranchFromBranch,
+      onSquashMergeIntoCurrentBranch,
+      canSquashMergeIntoCurrentBranch,
       onHardResetToBranch,
       canHardResetToBranch,
       onDeleteBranch,

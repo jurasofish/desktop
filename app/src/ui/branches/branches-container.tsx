@@ -52,6 +52,8 @@ interface IBranchesContainerProps {
   readonly onDeleteBranch: (branchName: string) => void
   readonly onCheckoutInNewWorktree?: (branch: Branch) => void
   readonly onCreateBranchFromBranch: (branchName: string) => void
+  readonly onSquashMergeIntoCurrentBranch: (branchName: string) => void
+  readonly canSquashMergeIntoCurrentBranch: (branchName: string) => boolean
   readonly onHardResetToBranch: (branchName: string) => void
   readonly canHardResetToBranch: (branchName: string) => boolean
 
@@ -299,6 +301,12 @@ export class BranchesContainer extends React.Component<
             onDeleteBranch={this.props.onDeleteBranch}
             onCheckoutInNewWorktree={this.props.onCheckoutInNewWorktree}
             onCreateBranchFromBranch={this.props.onCreateBranchFromBranch}
+            onSquashMergeIntoCurrentBranch={
+              this.props.onSquashMergeIntoCurrentBranch
+            }
+            canSquashMergeIntoCurrentBranch={
+              this.props.canSquashMergeIntoCurrentBranch
+            }
             onHardResetToBranch={this.props.onHardResetToBranch}
             canHardResetToBranch={this.props.canHardResetToBranch}
           />

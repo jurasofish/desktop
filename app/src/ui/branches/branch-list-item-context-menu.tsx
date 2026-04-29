@@ -8,6 +8,8 @@ interface IBranchContextMenuConfig {
   onViewBranchOnGitHub?: () => void
   onViewPullRequestOnGitHub?: () => void
   onCreateBranchFromBranch?: (branchName: string) => void
+  onSquashMergeIntoCurrentBranch?: (branchName: string) => void
+  canSquashMergeIntoCurrentBranch?: (branchName: string) => boolean
   onHardResetToBranch?: (branchName: string) => void
   canHardResetToBranch?: (branchName: string) => boolean
   onDeleteBranch?: (branchName: string) => void
@@ -23,6 +25,8 @@ export function generateBranchContextMenuItems(
     onViewBranchOnGitHub,
     onViewPullRequestOnGitHub,
     onCreateBranchFromBranch,
+    onSquashMergeIntoCurrentBranch,
+    canSquashMergeIntoCurrentBranch,
     onHardResetToBranch,
     canHardResetToBranch,
     onDeleteBranch,
@@ -74,6 +78,16 @@ export function generateBranchContextMenuItems(
         ? 'New Branch from This Branch…'
         : 'New branch from this branch…',
       action: () => onCreateBranchFromBranch(name),
+    })
+  }
+
+  if (onSquashMergeIntoCurrentBranch !== undefined) {
+    items.push({
+      label: __DARWIN__
+        ? 'Squash and Merge into Current Branch…'
+        : 'Squash and merge into current branch…',
+      action: () => onSquashMergeIntoCurrentBranch(name),
+      enabled: canSquashMergeIntoCurrentBranch?.(name) ?? true,
     })
   }
 
