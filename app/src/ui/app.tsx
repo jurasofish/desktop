@@ -160,6 +160,7 @@ import { dragAndDropManager } from '../lib/drag-and-drop-manager'
 import { MultiCommitOperation } from './multi-commit-operation/multi-commit-operation'
 import { WarnLocalChangesBeforeUndo } from './undo/warn-local-changes-before-undo'
 import { WarningBeforeReset } from './reset/warning-before-reset'
+import { HardResetToBranchDialog } from './reset/hard-reset-to-branch-dialog'
 import { InvalidatedToken } from './invalidated-token/invalidated-token'
 import { MultiCommitOperationKind } from '../models/multi-commit-operation'
 import { AddSSHHost } from './ssh/add-ssh-host'
@@ -2453,6 +2454,19 @@ export class App extends React.Component<IAppProps, IAppState> {
             dispatcher={this.props.dispatcher}
             repository={repository}
             commit={commit}
+            onDismissed={onPopupDismissedFn}
+          />
+        )
+      }
+      case PopupType.HardResetToBranch: {
+        const { repository, currentBranch, targetBranch } = popup
+        return (
+          <HardResetToBranchDialog
+            key="hard-reset-to-branch"
+            dispatcher={this.props.dispatcher}
+            repository={repository}
+            currentBranch={currentBranch}
+            targetBranch={targetBranch}
             onDismissed={onPopupDismissedFn}
           />
         )

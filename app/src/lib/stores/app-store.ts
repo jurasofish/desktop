@@ -5458,6 +5458,18 @@ export class AppStore extends TypedBaseStore<IAppState> {
     return this._refreshRepository(repository)
   }
 
+  public async _hardResetCurrentBranchToBranch(
+    repository: Repository,
+    targetBranch: Branch
+  ): Promise<void> {
+    const gitStore = this.gitStoreCache.get(repository)
+    await gitStore.performFailableOperation(() =>
+      reset(repository, GitResetMode.Hard, targetBranch.tip.sha)
+    )
+
+    return this._refreshRepository(repository)
+  }
+
   public async _resetToCommit(
     repository: Repository,
     commit: Commit,

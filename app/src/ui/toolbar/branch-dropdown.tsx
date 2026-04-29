@@ -116,6 +116,8 @@ export class BranchDropdown extends React.Component<IBranchDropdownProps> {
         onCheckoutInNewWorktree={this.onCheckoutInNewWorktree}
         onCheckoutPRInNewWorktree={this.onCheckoutPRInNewWorktree}
         onCreateBranchFromBranch={this.onCreateBranchFromBranch}
+        onHardResetToBranch={this.onHardResetToBranch}
+        canHardResetToBranch={this.canHardResetToBranch}
         underlineLinks={this.props.underlineLinks}
       />
     )
@@ -397,6 +399,42 @@ export class BranchDropdown extends React.Component<IBranchDropdownProps> {
       initialName: branch.name,
       startPoint: branch.tip.sha,
       startPointName: branch.name,
+    })
+  }
+
+  private canHardResetToBranch = (branchName: string): boolean => {
+    const { repositoryState } = this.props
+    const { branchesState, changesState, checkoutProgress } = repositoryState
+    const { tip } = branchesState
+
+    return (
+      tip.kind === TipState.Valid &&
+      branchName !== tip.branch.name &&
+      changesState.workingDirectory.files.length === 0 &&
+      changesState.conflictState === null &&
+      checkoutProgress === null &&
+      repositoryState.multiCommitOperationState === null
+    )
+  }
+
+  private onHardResetToBranch = (branchName: string) => {
+    const branch = this.getBranchWithName(branchName)
+    const { tip } = this.props.repositoryState.branchesState
+
+    if (branch === undefined || tip.kind !== TipState.Valid) {
+      return
+    }
+
+    if (!this.canHardResetToBranch(branchName)) {
+      return
+    }
+
+    this.props.dispatcher.closeFoldout(FoldoutType.Branch)
+    this.props.dispatcher.showPopup({
+      type: PopupType.HardResetToBranch,
+      repository: this.props.repository,
+      currentBranch: tip.branch,
+      targetBranch: branch,
     })
   }
 

@@ -83,6 +83,7 @@ export enum PopupType {
   MultiCommitOperation = 'MultiCommitOperation',
   WarnLocalChangesBeforeUndo = 'WarnLocalChangesBeforeUndo',
   WarningBeforeReset = 'WarningBeforeReset',
+  HardResetToBranch = 'HardResetToBranch',
   InvalidatedToken = 'InvalidatedToken',
   AddSSHHost = 'AddSSHHost',
   SSHKeyPassphrase = 'SSHKeyPassphrase',
@@ -363,6 +364,12 @@ export type PopupDetail =
       type: PopupType.WarningBeforeReset
       repository: Repository
       commit: Commit
+    }
+  | {
+      type: PopupType.HardResetToBranch
+      repository: Repository
+      currentBranch: Branch
+      targetBranch: Branch
     }
   | {
       type: PopupType.InvalidatedToken
