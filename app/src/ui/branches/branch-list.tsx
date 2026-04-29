@@ -134,6 +134,8 @@ interface IBranchListProps {
 
   /** Optional: Callback to checkout a branch in a new worktree */
   readonly onCheckoutInNewWorktree?: (branch: Branch) => void
+
+  readonly onCreateBranchFromBranch?: (branchName: string) => void
 }
 
 interface IBranchListState {
@@ -286,13 +288,14 @@ export class BranchList extends React.Component<
   ) => {
     event.preventDefault()
 
-    const { onRenameBranch, onDeleteBranch, onCheckoutInNewWorktree } =
+    const { onRenameBranch, onDeleteBranch, onCheckoutInNewWorktree, onCreateBranchFromBranch } =
       this.props
 
     if (
       onRenameBranch === undefined &&
       onDeleteBranch === undefined &&
-      onCheckoutInNewWorktree === undefined
+      onCheckoutInNewWorktree === undefined &&
+      onCreateBranchFromBranch === undefined
     ) {
       return
     }
@@ -302,6 +305,7 @@ export class BranchList extends React.Component<
     const items = generateBranchContextMenuItems({
       branch,
       onRenameBranch,
+      onCreateBranchFromBranch,
       onDeleteBranch,
       onCheckoutInNewWorktree,
     })
