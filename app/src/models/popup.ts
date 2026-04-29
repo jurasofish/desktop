@@ -182,6 +182,8 @@ export type PopupDetail =
       repository: Repository
       initialName?: string
       targetCommit?: CommitOneLine
+      startPoint?: string
+      startPointName?: string
     }
   | {
       type: PopupType.SignIn

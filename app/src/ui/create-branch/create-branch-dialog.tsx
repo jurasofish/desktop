@@ -39,6 +39,8 @@ import {
 interface ICreateBranchProps {
   readonly repository: Repository
   readonly targetCommit?: CommitOneLine
+  readonly startPoint?: string
+  readonly startPointName?: string
   readonly upstreamGitHubRepository: GitHubRepository | null
   readonly accounts: ReadonlyArray<Account>
   readonly cachedRepoRulesets: ReadonlyMap<number, IAPIRepoRuleset>
@@ -120,7 +122,10 @@ export class CreateBranch extends React.Component<
     const startPoint = getStartPoint(props, StartPoint.UpstreamDefaultBranch)
 
     this.state = {
-      currentError: null,
+      currentError: getBranchNameExistsError(
+        props.initialName,
+        props.allBranches
+      ),
       branchName: props.initialName,
       startPoint,
       isCreatingBranch: false,
@@ -173,6 +178,13 @@ export class CreateBranch extends React.Component<
         <p>
           Your new branch will be based on the commit '{targetCommit.summary}' (
           {targetCommit.sha.substring(0, 7)}) from your repository.
+        </p>
+      )
+    } else if (this.props.startPoint !== undefined) {
+      return (
+        <p>
+          Your new branch will be based on{' '}
+          <Ref>{this.props.startPointName ?? this.props.startPoint}</Ref>.
         </p>
       )
     } else if (tip.kind === TipState.Detached) {
@@ -290,15 +302,10 @@ export class CreateBranch extends React.Component<
   private async updateBranchName(branchName: string) {
     this.setState({ branchName })
 
-    const alreadyExists =
-      this.props.allBranches.findIndex(b => b.name === branchName) > -1
-
-    const currentError = alreadyExists
-      ? {
-          error: new Error(`A branch named ${branchName} already exists.`),
-          isWarning: false,
-        }
-      : null
+    const currentError = getBranchNameExistsError(
+      branchName,
+      this.props.allBranches
+    )
 
     if (!currentError) {
       if (this.branchRulesDebounceId !== null) {
@@ -354,6 +361,8 @@ export class CreateBranch extends React.Component<
 
     if (this.props.targetCommit !== undefined) {
       startPoint = this.props.targetCommit.sha
+    } else if (this.props.startPoint !== undefined) {
+      startPoint = this.props.startPoint
     } else if (this.state.startPoint === StartPoint.DefaultBranch) {
       // This really shouldn't happen, we take all kinds of precautions
       // to make sure the startPoint state is valid given the current props.
@@ -584,6 +593,20 @@ const defaultBranchLink = (
 )
 
 /** Given some branches and a start point, return the proper branch */
+function getBranchNameExistsError(
+  branchName: string,
+  allBranches: ReadonlyArray<Branch>
+): IBranchRuleError | null {
+  const alreadyExists = allBranches.findIndex(b => b.name === branchName) > -1
+
+  return alreadyExists
+    ? {
+        error: new Error(`A branch named ${branchName} already exists.`),
+        isWarning: false,
+      }
+    : null
+}
+
 function getBranchForStartPoint(
   startPoint: StartPoint,
   branchInfo: {

@@ -51,6 +51,8 @@ interface IBranchesContainerProps {
   readonly onRenameBranch: (branchName: string) => void
   readonly onDeleteBranch: (branchName: string) => void
   readonly onCheckoutInNewWorktree?: (branch: Branch) => void
+  readonly onCreateBranchFromBranch: (branchName: string) => void
+
 
   /** Optional callback to checkout a PR in a new worktree */
   readonly onCheckoutPRInNewWorktree?: (pullRequest: PullRequest) => void
@@ -294,6 +296,7 @@ export class BranchesContainer extends React.Component<
             onRenameBranch={this.props.onRenameBranch}
             onDeleteBranch={this.props.onDeleteBranch}
             onCheckoutInNewWorktree={this.props.onCheckoutInNewWorktree}
+            onCreateBranchFromBranch={this.props.onCreateBranchFromBranch}
           />
         )
       case BranchesTab.PullRequests: {
