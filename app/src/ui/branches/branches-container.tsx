@@ -51,6 +51,8 @@ interface IBranchesContainerProps {
   readonly onRenameBranch: (branchName: string) => void
   readonly onDeleteBranch: (branchName: string) => void
   readonly onCreateBranchFromBranch: (branchName: string) => void
+  readonly onSquashMergeIntoCurrentBranch: (branchName: string) => void
+  readonly canSquashMergeIntoCurrentBranch: (branchName: string) => boolean
   readonly onHardResetToBranch: (branchName: string) => void
   readonly canHardResetToBranch: (branchName: string) => boolean
 
@@ -293,6 +295,12 @@ export class BranchesContainer extends React.Component<
             onRenameBranch={this.props.onRenameBranch}
             onDeleteBranch={this.props.onDeleteBranch}
             onCreateBranchFromBranch={this.props.onCreateBranchFromBranch}
+            onSquashMergeIntoCurrentBranch={
+              this.props.onSquashMergeIntoCurrentBranch
+            }
+            canSquashMergeIntoCurrentBranch={
+              this.props.canSquashMergeIntoCurrentBranch
+            }
             onHardResetToBranch={this.props.onHardResetToBranch}
             canHardResetToBranch={this.props.canHardResetToBranch}
           />

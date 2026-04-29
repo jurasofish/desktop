@@ -114,6 +114,10 @@ export class BranchDropdown extends React.Component<IBranchDropdownProps> {
         onDeleteBranch={this.onDeleteBranch}
         onRenameBranch={this.onRenameBranch}
         onCreateBranchFromBranch={this.onCreateBranchFromBranch}
+        onSquashMergeIntoCurrentBranch={this.onSquashMergeIntoCurrentBranch}
+        canSquashMergeIntoCurrentBranch={
+          this.canSquashMergeIntoCurrentBranch
+        }
         onHardResetToBranch={this.onHardResetToBranch}
         canHardResetToBranch={this.canHardResetToBranch}
         underlineLinks={this.props.underlineLinks}
@@ -397,6 +401,28 @@ export class BranchDropdown extends React.Component<IBranchDropdownProps> {
       startPoint: branch.tip.sha,
       startPointName: branch.name,
     })
+  }
+
+  private canSquashMergeIntoCurrentBranch = (branchName: string): boolean => {
+    const { repositoryState } = this.props
+    const { tip } = repositoryState.branchesState
+
+    return tip.kind === TipState.Valid && branchName !== tip.branch.name
+  }
+
+  private onSquashMergeIntoCurrentBranch = (branchName: string) => {
+    const branch = this.getBranchWithName(branchName)
+
+    if (branch === undefined || !this.canSquashMergeIntoCurrentBranch(branchName)) {
+      return
+    }
+
+    this.props.dispatcher.closeFoldout(FoldoutType.Branch)
+    this.props.dispatcher.startMergeBranchOperation(
+      this.props.repository,
+      true,
+      branch
+    )
   }
 
   private canHardResetToBranch = (branchName: string): boolean => {
