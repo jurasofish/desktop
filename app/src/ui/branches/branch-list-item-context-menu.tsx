@@ -8,6 +8,8 @@ interface IBranchContextMenuConfig {
   onViewBranchOnGitHub?: () => void
   onViewPullRequestOnGitHub?: () => void
   onCreateBranchFromBranch?: (branchName: string) => void
+  onHardResetToBranch?: (branchName: string) => void
+  canHardResetToBranch?: (branchName: string) => boolean
   onDeleteBranch?: (branchName: string) => void
 }
 
@@ -21,6 +23,8 @@ export function generateBranchContextMenuItems(
     onViewBranchOnGitHub,
     onViewPullRequestOnGitHub,
     onCreateBranchFromBranch,
+    onHardResetToBranch,
+    canHardResetToBranch,
     onDeleteBranch,
   } = config
   const items = new Array<IMenuItem>()
@@ -60,6 +64,16 @@ export function generateBranchContextMenuItems(
         ? 'New Branch from This Branch…'
         : 'New branch from this branch…',
       action: () => onCreateBranchFromBranch(name),
+    })
+  }
+
+  if (onHardResetToBranch !== undefined) {
+    items.push({
+      label: __DARWIN__
+        ? 'Hard Reset Current Branch to This Branch…'
+        : 'Hard reset current branch to this branch…',
+      action: () => onHardResetToBranch(name),
+      enabled: canHardResetToBranch?.(name) ?? true,
     })
   }
 

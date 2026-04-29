@@ -51,6 +51,8 @@ interface IBranchesContainerProps {
   readonly onRenameBranch: (branchName: string) => void
   readonly onDeleteBranch: (branchName: string) => void
   readonly onCreateBranchFromBranch: (branchName: string) => void
+  readonly onHardResetToBranch: (branchName: string) => void
+  readonly canHardResetToBranch: (branchName: string) => boolean
 
   /** The pull request associated with the current branch. */
   readonly currentPullRequest: PullRequest | null
@@ -291,6 +293,8 @@ export class BranchesContainer extends React.Component<
             onRenameBranch={this.props.onRenameBranch}
             onDeleteBranch={this.props.onDeleteBranch}
             onCreateBranchFromBranch={this.props.onCreateBranchFromBranch}
+            onHardResetToBranch={this.props.onHardResetToBranch}
+            canHardResetToBranch={this.props.canHardResetToBranch}
           />
         )
       case BranchesTab.PullRequests: {

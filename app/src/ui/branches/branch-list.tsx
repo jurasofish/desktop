@@ -133,6 +133,10 @@ interface IBranchListProps {
   readonly onDeleteBranch?: (branchName: string) => void
 
   readonly onCreateBranchFromBranch?: (branchName: string) => void
+
+  readonly onHardResetToBranch?: (branchName: string) => void
+
+  readonly canHardResetToBranch?: (branchName: string) => boolean
 }
 
 interface IBranchListState {
@@ -285,13 +289,19 @@ export class BranchList extends React.Component<
   ) => {
     event.preventDefault()
 
-    const { onRenameBranch, onDeleteBranch, onCreateBranchFromBranch } =
-      this.props
+    const {
+      onRenameBranch,
+      onDeleteBranch,
+      onCreateBranchFromBranch,
+      onHardResetToBranch,
+      canHardResetToBranch,
+    } = this.props
 
     if (
       onRenameBranch === undefined &&
       onDeleteBranch === undefined &&
-      onCreateBranchFromBranch === undefined
+      onCreateBranchFromBranch === undefined &&
+      onHardResetToBranch === undefined
     ) {
       return
     }
@@ -304,6 +314,8 @@ export class BranchList extends React.Component<
       isLocal,
       onRenameBranch,
       onCreateBranchFromBranch,
+      onHardResetToBranch,
+      canHardResetToBranch,
       onDeleteBranch,
     })
 

@@ -955,6 +955,16 @@ export class Dispatcher {
     return this.appStore._undoCommit(repository, commit, showConfirmationDialog)
   }
 
+  public hardResetCurrentBranchToBranch(
+    repository: Repository,
+    targetBranch: Branch
+  ): Promise<void> {
+    return this.appStore._hardResetCurrentBranchToBranch(
+      repository,
+      targetBranch
+    )
+  }
+
   /** Reset to a given commit. */
   public resetToCommit(
     repository: Repository,
