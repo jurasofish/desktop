@@ -113,6 +113,7 @@ export class BranchDropdown extends React.Component<IBranchDropdownProps> {
         emoji={this.props.emoji}
         onDeleteBranch={this.onDeleteBranch}
         onRenameBranch={this.onRenameBranch}
+        onCreateBranchFromBranch={this.onCreateBranchFromBranch}
         underlineLinks={this.props.underlineLinks}
       />
     )
@@ -377,6 +378,23 @@ export class BranchDropdown extends React.Component<IBranchDropdownProps> {
     }
 
     this.props.dispatcher.showPullRequestByPR(pr)
+  }
+
+  private onCreateBranchFromBranch = (branchName: string) => {
+    const branch = this.getBranchWithName(branchName)
+
+    if (branch === undefined) {
+      return
+    }
+
+    this.props.dispatcher.closeFoldout(FoldoutType.Branch)
+    this.props.dispatcher.showPopup({
+      type: PopupType.CreateBranch,
+      repository: this.props.repository,
+      initialName: branch.name,
+      startPoint: branch.tip.sha,
+      startPointName: branch.name,
+    })
   }
 
   private onDeleteBranch = async (branchName: string) => {

@@ -1790,6 +1790,8 @@ export class App extends React.Component<IAppProps, IAppState> {
             allBranches={branchesState.allBranches}
             repository={repository}
             targetCommit={popup.targetCommit}
+            startPoint={popup.startPoint}
+            startPointName={popup.startPointName}
             upstreamGitHubRepository={upstreamGhRepo}
             accounts={this.state.accounts}
             cachedRepoRulesets={this.state.cachedRepoRulesets}

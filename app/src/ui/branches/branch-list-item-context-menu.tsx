@@ -7,6 +7,7 @@ interface IBranchContextMenuConfig {
   onRenameBranch?: (branchName: string) => void
   onViewBranchOnGitHub?: () => void
   onViewPullRequestOnGitHub?: () => void
+  onCreateBranchFromBranch?: (branchName: string) => void
   onDeleteBranch?: (branchName: string) => void
 }
 
@@ -19,6 +20,7 @@ export function generateBranchContextMenuItems(
     onRenameBranch,
     onViewBranchOnGitHub,
     onViewPullRequestOnGitHub,
+    onCreateBranchFromBranch,
     onDeleteBranch,
   } = config
   const items = new Array<IMenuItem>()
@@ -51,6 +53,15 @@ export function generateBranchContextMenuItems(
   }
 
   items.push({ type: 'separator' })
+
+  if (onCreateBranchFromBranch !== undefined) {
+    items.push({
+      label: __DARWIN__
+        ? 'New Branch from This Branch…'
+        : 'New branch from this branch…',
+      action: () => onCreateBranchFromBranch(name),
+    })
+  }
 
   if (onDeleteBranch !== undefined) {
     items.push({

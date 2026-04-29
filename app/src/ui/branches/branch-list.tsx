@@ -131,6 +131,8 @@ interface IBranchListProps {
 
   /** Optional: Callback for if delete context menu should exist */
   readonly onDeleteBranch?: (branchName: string) => void
+
+  readonly onCreateBranchFromBranch?: (branchName: string) => void
 }
 
 interface IBranchListState {
@@ -283,9 +285,14 @@ export class BranchList extends React.Component<
   ) => {
     event.preventDefault()
 
-    const { onRenameBranch, onDeleteBranch } = this.props
+    const { onRenameBranch, onDeleteBranch, onCreateBranchFromBranch } =
+      this.props
 
-    if (onRenameBranch === undefined && onDeleteBranch === undefined) {
+    if (
+      onRenameBranch === undefined &&
+      onDeleteBranch === undefined &&
+      onCreateBranchFromBranch === undefined
+    ) {
       return
     }
 
@@ -296,6 +303,7 @@ export class BranchList extends React.Component<
       name,
       isLocal,
       onRenameBranch,
+      onCreateBranchFromBranch,
       onDeleteBranch,
     })
 
