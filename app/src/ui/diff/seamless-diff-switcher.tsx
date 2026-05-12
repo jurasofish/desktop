@@ -4,6 +4,7 @@ import classNames from 'classnames'
 import { Repository } from '../../models/repository'
 
 import { Diff } from './index'
+import { ISideBySideDiffHandle } from './side-by-side-diff'
 import {
   WorkingDirectoryFileChange,
   CommittedFileChange,
@@ -128,6 +129,23 @@ interface ISeamlessDiffSwitcherProps {
   // Used in getDerivedStateFromProps, no-unused-prop-types doesn't know that
   // eslint-disable-next-line react/no-unused-prop-types
   readonly onHideWhitespaceInDiffChanged: (checked: boolean) => void
+
+  /**
+   * Called when the underlying text-diff component mounts and unmounts so
+   * that parents can hold an imperative handle for querying viewport state.
+   * The reported handle returns no line numbers while a new diff is loading,
+   * because the still-rendered text diff component belongs to the previous
+   * file in that window.
+   */
+  readonly onDiffHandleChanged?: (handle: ISideBySideDiffHandle | null) => void
+
+  /**
+   * Called when the user double-clicks a line-number gutter cell in the
+   * underlying text diff and that cell resolves to a new-file line.
+   * Suppressed while a new diff is loading because the rendered DOM in
+   * that window still belongs to the previous file.
+   */
+  readonly onLineNumberDoubleClick?: (newLineNumber: number) => void
 }
 
 interface ISeamlessDiffSwitcherState {
@@ -218,6 +236,17 @@ export class SeamlessDiffSwitcher extends React.Component<
   /** File whose (old & new files) contents are being loaded. */
   private loadingState: { file: ChangedFile; diff: IDiff } | null = null
 
+  /**
+   * Inner handle reported by the currently-mounted text diff component, if
+   * any. We hold this directly so that the outer handle we expose to parents
+   * can ignore viewport queries while a new diff is loading; in that window
+   * the inner component is still showing the previous diff, so its line
+   * numbers belong to the wrong file.
+   */
+  private innerDiffHandle: ISideBySideDiffHandle | null = null
+
+  private readonly outerDiffHandle: ISideBySideDiffHandle
+
   public constructor(props: ISeamlessDiffSwitcherProps) {
     super(props)
 
@@ -233,6 +262,22 @@ export class SeamlessDiffSwitcher extends React.Component<
       diff: props.diff,
       fileContents: null,
     }
+
+    this.outerDiffHandle = {
+      getTopVisibleNewLineNumber: () => {
+        if (this.state.isLoadingDiff) {
+          return null
+        }
+        return this.innerDiffHandle?.getTopVisibleNewLineNumber() ?? null
+      },
+    }
+  }
+
+  private onInnerDiffHandleChanged = (handle: ISideBySideDiffHandle | null) => {
+    this.innerDiffHandle = handle
+    this.props.onDiffHandleChanged?.(
+      handle === null ? null : this.outerDiffHandle
+    )
   }
 
   public componentDidMount() {
@@ -414,6 +459,10 @@ export class SeamlessDiffSwitcher extends React.Component<
             onChangeImageDiffType={isLoadingDiff ? noop : onChangeImageDiffType}
             onHideWhitespaceInDiffChanged={
               isLoadingDiff ? noop : onHideWhitespaceInDiffChanged
+            }
+            onDiffHandleChanged={this.onInnerDiffHandleChanged}
+            onLineNumberDoubleClick={
+              isLoadingDiff ? undefined : this.props.onLineNumberDoubleClick
             }
           />
         ) : null}
