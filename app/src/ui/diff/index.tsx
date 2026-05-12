@@ -28,7 +28,7 @@ import {
   DeletedImageDiff,
 } from './image-diffs'
 import { BinaryFile } from './binary-file'
-import { SideBySideDiff } from './side-by-side-diff'
+import { ISideBySideDiffHandle, SideBySideDiff } from './side-by-side-diff'
 import { IFileContents } from './syntax-highlighting'
 import { SubmoduleDiff } from './submodule-diff'
 import { Octicon } from '../octicons'
@@ -105,6 +105,13 @@ interface IDiffProps {
 
   /** Called when the user changes the hide whitespace in diffs setting. */
   readonly onHideWhitespaceInDiffChanged: (checked: boolean) => void
+
+  /**
+   * Called when the underlying text-diff component mounts and unmounts so
+   * that parents can hold an imperative handle for querying viewport state.
+   * Only invoked for text diffs.
+   */
+  readonly onDiffHandleChanged?: (handle: ISideBySideDiffHandle | null) => void
 }
 
 interface IDiffState {
@@ -298,6 +305,7 @@ export class Diff extends React.Component<IDiffProps, IDiffState> {
         }
         onHideWhitespaceInDiffChanged={this.props.onHideWhitespaceInDiffChanged}
         showDiffCheckMarks={this.props.showDiffCheckMarks}
+        onDiffHandleChanged={this.props.onDiffHandleChanged}
       />
     )
   }

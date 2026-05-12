@@ -1586,12 +1586,17 @@ export class Dispatcher {
 
   /**
    * Opens a path in the external editor selected by the user.
+   *
+   * `line` is an optional one-based line number to jump to. It is currently
+   * only honoured by the PyCharm-on-macOS integration; other editors ignore
+   * it.
    */
   public async openInExternalEditor(
     fullPath: string,
-    repositoryPath?: string
+    repositoryPath?: string,
+    line?: number
   ): Promise<void> {
-    return this.appStore._openInExternalEditor(fullPath, repositoryPath)
+    return this.appStore._openInExternalEditor(fullPath, repositoryPath, line)
   }
 
   /**
