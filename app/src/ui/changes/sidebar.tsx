@@ -78,8 +78,20 @@ interface IChangesSidebarProps {
    * Callback to open a selected file using the configured external editor
    *
    * @param fullPath The full path to the file on disk
+   * @param line Optional one-based line number to jump to. Only honoured by
+   *  editors that accept a line argument (currently PyCharm on macOS).
    */
-  readonly onOpenInExternalEditor: (fullPath: string) => void
+  readonly onOpenInExternalEditor: (fullPath: string, line?: number) => void
+
+  /**
+   * Called when the user double-clicks a changed file to open it in the
+   * configured external editor. Implementations can supply a viewport-aware
+   * line number so that editors like PyCharm jump to roughly the spot the
+   * user is currently looking at in the diff.
+   *
+   * @param path The path of the file relative to the root of the repository.
+   */
+  readonly onChangedFileDoubleClickInExternalEditor?: (path: string) => void
   readonly onChangesListScrolled: (scrollTop: number) => void
   readonly changesListScrollTop?: number
 
@@ -293,6 +305,19 @@ export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
   }
 
   /**
+   * Called when the user double-clicks a changed file. Delegates to the
+   * parent-supplied handler when one exists, otherwise falls back to the
+   * line-agnostic open behaviour.
+   */
+  private onChangedFileDoubleClickInExternalEditor = (path: string) => {
+    if (this.props.onChangedFileDoubleClickInExternalEditor) {
+      this.props.onChangedFileDoubleClickInExternalEditor(path)
+      return
+    }
+    this.props.onOpenInExternalEditor(path)
+  }
+
+  /**
    * Toggles the selection of a given working directory file.
    * If the file is partially selected it the selection is cleared
    * in order to match the behavior of clicking on an indeterminate
@@ -465,6 +490,9 @@ export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
           coAuthors={coAuthors}
           externalEditorLabel={this.props.externalEditorLabel}
           onOpenItemInExternalEditor={this.onOpenItemInExternalEditor}
+          onChangedFileDoubleClickInExternalEditor={
+            this.onChangedFileDoubleClickInExternalEditor
+          }
           onChangesListScrolled={this.props.onChangesListScrolled}
           changesListScrollTop={this.props.changesListScrollTop}
           stashEntry={this.props.changes.stashEntry}

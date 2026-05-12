@@ -57,6 +57,7 @@ import {
   getFirstAndLastClassesSideBySide,
   textDiffEquals,
   isRowChanged,
+  findTopVisibleNewLineNumber,
 } from './diff-helpers'
 import { showContextualMenu } from '../../lib/menu-item'
 import { getTokens } from './get-tokens'
@@ -88,6 +89,21 @@ export interface ISelection {
 type SearchDirection = 'next' | 'previous'
 
 type ModifiedLine = { line: DiffLine; diffLineNumber: number }
+
+/**
+ * Imperative handle exposed by `SideBySideDiff` so that parent components can
+ * query state that does not naturally live in props (e.g. what the user is
+ * currently looking at in the scrolled viewport).
+ */
+export interface ISideBySideDiffHandle {
+  /**
+   * Returns the new-file line number of the topmost row in the currently
+   * visible diff viewport that is either an addition or a modification.
+   * Context rows and deletion-only rows are skipped. Returns `null` if no
+   * such row is present in the visible viewport.
+   */
+  getTopVisibleNewLineNumber(): number | null
+}
 
 const isElement = (n: Node): n is Element => n.nodeType === Node.ELEMENT_NODE
 const closestElement = (n: Node): Element | null =>
@@ -150,6 +166,21 @@ interface ISideBySideDiffProps {
 
   /** Called when the user changes the hide whitespace in diffs setting. */
   readonly onHideWhitespaceInDiffChanged: (checked: boolean) => void
+
+  /**
+   * Called when this component mounts and unmounts so that parents can hold
+   * an imperative handle for querying viewport state. Called with the handle
+   * on mount and with `null` on unmount.
+   */
+  readonly onDiffHandleChanged?: (handle: ISideBySideDiffHandle | null) => void
+
+  /**
+   * Called when the user double-clicks a line-number gutter cell that
+   * resolves to a new-file line. The callback receives the new-file line
+   * number; the consumer pairs it with the current file path before
+   * launching the editor.
+   */
+  readonly onLineNumberDoubleClick?: (newLineNumber: number) => void
 }
 
 interface ISideBySideDiffState {
@@ -288,6 +319,8 @@ export class SideBySideDiff extends React.Component<
     document.addEventListener('selectionchange', this.onDocumentSelectionChange)
 
     this.addContextMenuListenerToDiff()
+
+    this.props.onDiffHandleChanged?.(this)
   }
 
   private addContextMenuListenerToDiff = () => {
@@ -422,6 +455,20 @@ export class SideBySideDiff extends React.Component<
     )
     document.removeEventListener('mousemove', this.onUpdateSelection)
     this.removeContextMenuListenerFromDiff()
+
+    this.props.onDiffHandleChanged?.(null)
+  }
+
+  public getTopVisibleNewLineNumber(): number | null {
+    if (this.renderedStopIndex === undefined) {
+      return null
+    }
+
+    return findTopVisibleNewLineNumber(
+      this.getCurrentDiffRows(),
+      this.renderedStartIndex,
+      this.renderedStopIndex
+    )
   }
 
   public componentDidUpdate(
@@ -447,6 +494,12 @@ export class SideBySideDiff extends React.Component<
       this.props.file.id !== prevProps.file.id
     ) {
       this.virtualListRef.current.scrollToPosition(0)
+
+      // Force the visible-row indices back to a known state so that any
+      // imperative query made before the next `onRowsRendered` fires can't
+      // return a line number computed against the previous file's rows.
+      this.renderedStartIndex = 0
+      this.renderedStopIndex = undefined
 
       // Reset selection
       this.textSelectionStartRow = undefined
@@ -926,6 +979,7 @@ export class SideBySideDiff extends React.Component<
             afterClassNames={afterClassNames}
             onHunkExpansionRef={this.onHunkExpansionRef}
             onLineNumberCheckedChanged={this.onLineNumberCheckedChanged}
+            onLineNumberDoubleClick={this.props.onLineNumberDoubleClick}
           />
         </div>
       </CellMeasurer>

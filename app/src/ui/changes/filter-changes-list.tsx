@@ -152,6 +152,17 @@ interface IFilterChangesListProps {
   readonly onOpenItemInExternalEditor: (path: string) => void
 
   /**
+   * Called when the user double-clicks a changed file. Distinct from
+   * `onOpenItemInExternalEditor` so that double-click can be wired to a
+   * handler that supplies a viewport-aware line number while the
+   * context-menu "Open in external editor" entry keeps its current
+   * line-agnostic behaviour.
+   *
+   * @param path The path of the file relative to the root of the repository
+   */
+  readonly onChangedFileDoubleClickInExternalEditor?: (path: string) => void
+
+  /**
    * The currently checked out branch (null if no branch is checked out).
    */
   readonly branch: string | null
@@ -1130,7 +1141,10 @@ export class FilterChangesList extends React.Component<
   }
 
   private onChangedFileDoubleClick = (item: IChangesListItem) => {
-    this.props.onOpenItemInExternalEditor(item.change.path)
+    const handler =
+      this.props.onChangedFileDoubleClickInExternalEditor ??
+      this.props.onOpenItemInExternalEditor
+    handler(item.change.path)
   }
 
   private onItemKeyDown = (
