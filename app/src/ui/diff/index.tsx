@@ -112,6 +112,13 @@ interface IDiffProps {
    * Only invoked for text diffs.
    */
   readonly onDiffHandleChanged?: (handle: ISideBySideDiffHandle | null) => void
+
+  /**
+   * Called when the user double-clicks a line-number gutter cell that
+   * resolves to a new-file line. The callback receives the new-file line
+   * number.
+   */
+  readonly onLineNumberDoubleClick?: (newLineNumber: number) => void
 }
 
 interface IDiffState {
@@ -306,6 +313,7 @@ export class Diff extends React.Component<IDiffProps, IDiffState> {
         onHideWhitespaceInDiffChanged={this.props.onHideWhitespaceInDiffChanged}
         showDiffCheckMarks={this.props.showDiffCheckMarks}
         onDiffHandleChanged={this.props.onDiffHandleChanged}
+        onLineNumberDoubleClick={this.props.onLineNumberDoubleClick}
       />
     )
   }

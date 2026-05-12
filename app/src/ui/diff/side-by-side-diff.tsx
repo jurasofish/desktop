@@ -173,6 +173,14 @@ interface ISideBySideDiffProps {
    * on mount and with `null` on unmount.
    */
   readonly onDiffHandleChanged?: (handle: ISideBySideDiffHandle | null) => void
+
+  /**
+   * Called when the user double-clicks a line-number gutter cell that
+   * resolves to a new-file line. The callback receives the new-file line
+   * number; the consumer pairs it with the current file path before
+   * launching the editor.
+   */
+  readonly onLineNumberDoubleClick?: (newLineNumber: number) => void
 }
 
 interface ISideBySideDiffState {
@@ -971,6 +979,7 @@ export class SideBySideDiff extends React.Component<
             afterClassNames={afterClassNames}
             onHunkExpansionRef={this.onHunkExpansionRef}
             onLineNumberCheckedChanged={this.onLineNumberCheckedChanged}
+            onLineNumberDoubleClick={this.props.onLineNumberDoubleClick}
           />
         </div>
       </CellMeasurer>

@@ -628,6 +628,7 @@ export class RepositoryView extends React.Component<
           }
           onDiffOptionsOpened={this.onDiffOptionsOpened}
           onDiffHandleChanged={this.onWorkingDiffHandleChanged}
+          onOpenLineInExternalEditor={this.props.onOpenInExternalEditor}
         />
       )
     }

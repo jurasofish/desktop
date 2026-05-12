@@ -122,6 +122,14 @@ interface ISeamlessDiffSwitcherProps {
    * file in that window.
    */
   readonly onDiffHandleChanged?: (handle: ISideBySideDiffHandle | null) => void
+
+  /**
+   * Called when the user double-clicks a line-number gutter cell in the
+   * underlying text diff and that cell resolves to a new-file line.
+   * Suppressed while a new diff is loading because the rendered DOM in
+   * that window still belongs to the previous file.
+   */
+  readonly onLineNumberDoubleClick?: (newLineNumber: number) => void
 }
 
 interface ISeamlessDiffSwitcherState {
@@ -416,6 +424,9 @@ export class SeamlessDiffSwitcher extends React.Component<
               isLoadingDiff ? noop : onHideWhitespaceInDiffChanged
             }
             onDiffHandleChanged={this.onInnerDiffHandleChanged}
+            onLineNumberDoubleClick={
+              isLoadingDiff ? undefined : this.props.onLineNumberDoubleClick
+            }
           />
         ) : null}
         {loadingIndicator}
