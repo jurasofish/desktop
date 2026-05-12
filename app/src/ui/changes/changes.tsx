@@ -10,6 +10,7 @@ import { WorkingDirectoryFileChange } from '../../models/status'
 import { Repository } from '../../models/repository'
 import { Dispatcher } from '../dispatcher'
 import { SeamlessDiffSwitcher } from '../diff/seamless-diff-switcher'
+import { ISideBySideDiffHandle } from '../diff/side-by-side-diff'
 import { PopupType } from '../../models/popup'
 
 interface IChangesProps {
@@ -54,6 +55,12 @@ interface IChangesProps {
 
   /** Called when the user opens the diff options popover */
   readonly onDiffOptionsOpened: () => void
+
+  /**
+   * Called when the underlying text-diff component mounts and unmounts so
+   * that parents can hold an imperative handle for querying viewport state.
+   */
+  readonly onDiffHandleChanged?: (handle: ISideBySideDiffHandle | null) => void
 }
 
 export class Changes extends React.Component<IChangesProps, {}> {
@@ -131,6 +138,7 @@ export class Changes extends React.Component<IChangesProps, {}> {
           onOpenSubmodule={this.props.onOpenSubmodule}
           onChangeImageDiffType={this.props.onChangeImageDiffType}
           onHideWhitespaceInDiffChanged={this.onHideWhitespaceInDiffChanged}
+          onDiffHandleChanged={this.props.onDiffHandleChanged}
         />
       </div>
     )

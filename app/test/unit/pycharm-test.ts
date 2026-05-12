@@ -160,6 +160,61 @@ describe('pycharm helpers', () => {
     assert.deepEqual(spawnOptionsCalls, [{ cwd: '/tmp/repo' }])
   })
 
+  it('passes the requested line number to PyCharm on macOS', async () => {
+    if (!__DARWIN__) {
+      return
+    }
+
+    const { launchExternalEditor } = await import(
+      '../../src/lib/editors/launch'
+    )
+    await launchExternalEditor(
+      '/tmp/repo/src/index.ts',
+      { editor: 'PyCharm', path: '/Applications/PyCharm.app' },
+      '/tmp/repo',
+      42
+    )
+
+    assert.deepEqual(spawnCalls, [
+      [
+        '/Applications/PyCharm.app/Contents/MacOS/pycharm',
+        '/tmp/repo',
+        '--line',
+        '42',
+        './src/index.ts',
+      ],
+    ])
+  })
+
+  it('falls back to --line 1 when the requested line is invalid on macOS', async () => {
+    if (!__DARWIN__) {
+      return
+    }
+
+    const { launchExternalEditor } = await import(
+      '../../src/lib/editors/launch'
+    )
+
+    for (const invalidLine of [0, -1, 1.5, NaN, Infinity]) {
+      await launchExternalEditor(
+        '/tmp/repo/src/index.ts',
+        { editor: 'PyCharm', path: '/Applications/PyCharm.app' },
+        '/tmp/repo',
+        invalidLine
+      )
+    }
+
+    for (const call of spawnCalls) {
+      assert.deepEqual(call, [
+        '/Applications/PyCharm.app/Contents/MacOS/pycharm',
+        '/tmp/repo',
+        '--line',
+        '1',
+        './src/index.ts',
+      ])
+    }
+  })
+
   it('launches PyCharm repositories without redundant file context on macOS', async () => {
     if (!__DARWIN__) {
       return
