@@ -977,6 +977,7 @@ export class SideBySideDiff extends React.Component<
             afterClassNames={afterClassNames}
             onHunkExpansionRef={this.onHunkExpansionRef}
             onLineNumberCheckedChanged={this.onLineNumberCheckedChanged}
+            onLineNumberDoubleClick={this.props.onLineNumberDoubleClick}
           />
         </div>
       </CellMeasurer>

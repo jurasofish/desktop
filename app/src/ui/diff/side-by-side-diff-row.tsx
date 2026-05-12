@@ -241,6 +241,14 @@ interface ISideBySideDiffRowProps {
 
   /** The selectable group details */
   readonly rowSelectableGroup: IRowSelectableGroup | null
+
+  /**
+   * Called when the user double-clicks a line-number gutter cell that
+   * resolves to a meaningful new-file line. The callback receives the
+   * new-file line number. Not invoked for deleted-side gutters or for
+   * cells that have no new-file line number.
+   */
+  readonly onLineNumberDoubleClick?: (newLineNumber: number) => void
 }
 
 interface ISideBySideDiffRowState {
@@ -775,6 +783,7 @@ export class SideBySideDiffRow extends React.Component<
         className={classes}
         style={{ width: this.lineGutterWidth }}
         onMouseDown={this.onMouseDownLineNumber}
+        onDoubleClick={this.onDoubleClickLineNumber}
       >
         {isSelectable &&
           this.renderLineNumberCheckbox(checkboxId, isSelected === true)}
@@ -961,6 +970,48 @@ export class SideBySideDiffRow extends React.Component<
     }
 
     this.props.onStartSelection(this.props.numRow, column, !data.isSelected)
+  }
+
+  private onDoubleClickLineNumber = (evt: React.MouseEvent) => {
+    const callback = this.props.onLineNumberDoubleClick
+    if (callback === undefined) {
+      return
+    }
+
+    const newLineNumber = this.getNewLineNumberForDoubleClick(evt.currentTarget)
+    if (newLineNumber === null) {
+      return
+    }
+
+    callback(newLineNumber)
+  }
+
+  /**
+   * Returns the new-file line number that should be jumped to when the
+   * user double-clicks the gutter cell pointed to by `targetElement`, or
+   * null if no jump is applicable (deleted line, before-side of a
+   * modified row, hunk header, etc.).
+   */
+  private getNewLineNumberForDoubleClick(
+    targetElement: Element
+  ): number | null {
+    const { row, showSideBySideDiff } = this.props
+
+    switch (row.type) {
+      case DiffRowType.Added:
+        return row.data.lineNumber
+      case DiffRowType.Deleted:
+        return null
+      case DiffRowType.Modified:
+        return targetElement.closest('.after') ? row.afterData.lineNumber : null
+      case DiffRowType.Context:
+        if (showSideBySideDiff && targetElement.closest('.after') === null) {
+          return null
+        }
+        return row.afterLineNumber
+      case DiffRowType.Hunk:
+        return null
+    }
   }
 
   private onMouseEnterHunk = () => {
