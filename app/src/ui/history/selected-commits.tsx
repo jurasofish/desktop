@@ -27,6 +27,8 @@ import { showContextualMenu } from '../../lib/menu-item'
 
 import { FileList } from './file-list'
 import { SeamlessDiffSwitcher } from '../diff/seamless-diff-switcher'
+import { ISideBySideDiffHandle } from '../diff/side-by-side-diff'
+import { isPyCharmEditor } from '../../lib/editors/pycharm'
 import { getDotComAPIEndpoint } from '../../lib/api'
 import { IMenuItem } from '../../lib/menu-item'
 import { IChangesetData } from '../../lib/git'
@@ -58,8 +60,10 @@ interface ISelectedCommitsProps {
    * Called to open a file using the user's configured applications
    *
    * @param path The path of the file relative to the root of the repository
+   * @param line Optional one-based line number to jump to. Only honoured by
+   *  editors that accept a line argument (currently PyCharm on macOS).
    */
-  readonly onOpenInExternalEditor: (path: string) => void
+  readonly onOpenInExternalEditor: (path: string, line?: number) => void
   readonly onViewCommitOnGitHub: (SHA: string, filePath?: string) => void
   readonly hideWhitespaceInDiff: boolean
 
@@ -104,6 +108,11 @@ export class SelectedCommits extends React.Component<
 > {
   private readonly loadChangedFilesScheduler = new ThrottledScheduler(200)
 
+  private diff: {
+    readonly filePath: string
+    readonly handle: ISideBySideDiffHandle
+  } | null = null
+
   public constructor(props: ISelectedCommitsProps) {
     super(props)
 
@@ -120,7 +129,29 @@ export class SelectedCommits extends React.Component<
     const files = this.props.changesetData.files
     const file = files[row]
 
-    this.props.onOpenInExternalEditor(file.path)
+    const line =
+      this.diff?.filePath === file.path
+        ? this.diff.handle.getTopVisibleNewLineNumber() ?? undefined
+        : undefined
+    this.props.onOpenInExternalEditor(file.path, line)
+  }
+
+  private onDiffHandleChanged = (handle: ISideBySideDiffHandle | null) => {
+    const file = this.props.selectedFile
+    this.diff =
+      handle === null || file === null ? null : { filePath: file.path, handle }
+  }
+
+  private get canOpenLineInExternalEditor() {
+    return __DARWIN__ && isPyCharmEditor(this.props.externalEditorLabel ?? null)
+  }
+
+  private onDiffLineNumberDoubleClick = (newLineNumber: number) => {
+    const file = this.props.selectedFile
+    if (file === null) {
+      return
+    }
+    this.props.onOpenInExternalEditor(file.path, newLineNumber)
   }
 
   public componentWillUpdate(nextProps: ISelectedCommitsProps) {
@@ -171,6 +202,12 @@ export class SelectedCommits extends React.Component<
           onChangeImageDiffType={this.props.onChangeImageDiffType}
           onHideWhitespaceInDiffChanged={this.onHideWhitespaceInDiffChanged}
           onOpenSubmodule={this.props.onOpenSubmodule}
+          onDiffHandleChanged={this.onDiffHandleChanged}
+          onLineNumberDoubleClick={
+            this.canOpenLineInExternalEditor
+              ? this.onDiffLineNumberDoubleClick
+              : undefined
+          }
         />
       </div>
     )

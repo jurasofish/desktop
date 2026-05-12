@@ -4,6 +4,7 @@ import { Commit, CommitOneLine } from '../models/commit'
 import { TipState } from '../models/tip'
 import { UiView } from './ui-view'
 import { Changes, ChangesSidebar } from './changes'
+import { ISideBySideDiffHandle } from './diff/side-by-side-diff'
 import { NoChanges } from './changes/no-changes'
 import { MultipleSelection } from './changes/multiple-selection'
 import { FilesChangedBadge } from './changes/files-changed-badge'
@@ -94,8 +95,10 @@ interface IRepositoryViewProps {
    * Callback to open a selected file using the configured external editor
    *
    * @param fullPath The full path to the file on disk
+   * @param line Optional one-based line number to jump to. Only honoured by
+   *  editors that accept a line argument (currently PyCharm on macOS).
    */
-  readonly onOpenInExternalEditor: (fullPath: string) => void
+  readonly onOpenInExternalEditor: (fullPath: string, line?: number) => void
 
   /**
    * The top-level application menu item.
@@ -166,6 +169,17 @@ export class RepositoryView extends React.Component<
 
   private readonly changesSidebarRef = React.createRef<ChangesSidebar>()
   private readonly compareSidebarRef = React.createRef<CompareSidebar>()
+
+  /**
+   * Handle exposed by the diff component rendered for the Changes tab. Used
+   * to look up the topmost addition or modification visible in the working
+   * diff so that double-clicking a changed file can open PyCharm at roughly
+   * that line instead of at the top.
+   */
+  private workingDiff: {
+    readonly filePath: string
+    readonly handle: ISideBySideDiffHandle
+  } | null = null
 
   private focusHistoryNeeded: boolean = false
   private focusChangesNeeded: boolean = false
@@ -312,6 +326,9 @@ export class RepositoryView extends React.Component<
         isShowingFoldout={this.props.isShowingFoldout}
         externalEditorLabel={this.props.externalEditorLabel}
         onOpenInExternalEditor={this.props.onOpenInExternalEditor}
+        onChangedFileDoubleClickInExternalEditor={
+          this.onChangedFileDoubleClickInExternalEditor
+        }
         onChangesListScrolled={this.onChangesListScrolled}
         changesListScrollTop={scrollTop}
         shouldNudgeToCommit={
@@ -613,6 +630,9 @@ export class RepositoryView extends React.Component<
             this.props.askForConfirmationOnDiscardChanges
           }
           onDiffOptionsOpened={this.onDiffOptionsOpened}
+          onDiffHandleChanged={this.onWorkingDiffHandleChanged}
+          onOpenLineInExternalEditor={this.props.onOpenInExternalEditor}
+          externalEditorLabel={this.props.externalEditorLabel}
         />
       )
     }
@@ -629,6 +649,21 @@ export class RepositoryView extends React.Component<
 
   private onChangeImageDiffType = (imageDiffType: ImageDiffType) => {
     this.props.dispatcher.changeImageDiffType(imageDiffType)
+  }
+
+  private onWorkingDiffHandleChanged = (
+    filePath: string,
+    handle: ISideBySideDiffHandle | null
+  ) => {
+    this.workingDiff = handle === null ? null : { filePath, handle }
+  }
+
+  private onChangedFileDoubleClickInExternalEditor = (path: string) => {
+    const line =
+      this.workingDiff?.filePath === path
+        ? this.workingDiff.handle.getTopVisibleNewLineNumber() ?? undefined
+        : undefined
+    this.props.onOpenInExternalEditor(path, line)
   }
 
   private renderContent(): JSX.Element | null {
