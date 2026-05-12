@@ -61,6 +61,14 @@ interface IChangesProps {
    * that parents can hold an imperative handle for querying viewport state.
    */
   readonly onDiffHandleChanged?: (handle: ISideBySideDiffHandle | null) => void
+
+  /**
+   * Called when the user double-clicks a line-number gutter cell in the
+   * working-tree diff and that cell resolves to a new-file line. The
+   * consumer is responsible for opening the file in the external editor
+   * at that line.
+   */
+  readonly onOpenLineInExternalEditor?: (path: string, line: number) => void
 }
 
 export class Changes extends React.Component<IChangesProps, {}> {
@@ -139,9 +147,14 @@ export class Changes extends React.Component<IChangesProps, {}> {
           onChangeImageDiffType={this.props.onChangeImageDiffType}
           onHideWhitespaceInDiffChanged={this.onHideWhitespaceInDiffChanged}
           onDiffHandleChanged={this.props.onDiffHandleChanged}
+          onLineNumberDoubleClick={this.onDiffLineNumberDoubleClick}
         />
       </div>
     )
+  }
+
+  private onDiffLineNumberDoubleClick = (newLineNumber: number) => {
+    this.props.onOpenLineInExternalEditor?.(this.props.file.path, newLineNumber)
   }
 
   private onShowSideBySideDiffChanged = (showSideBySideDiff: boolean) => {

@@ -133,6 +133,14 @@ export class SelectedCommits extends React.Component<
     this.diffHandle = handle
   }
 
+  private onDiffLineNumberDoubleClick = (newLineNumber: number) => {
+    const file = this.props.selectedFile
+    if (file === null) {
+      return
+    }
+    this.props.onOpenInExternalEditor(file.path, newLineNumber)
+  }
+
   public componentWillUpdate(nextProps: ISelectedCommitsProps) {
     // reset isExpanded if we're switching commits.
     const currentValue = this.props.selectedCommits.map(c => c.sha).join('')
@@ -182,6 +190,7 @@ export class SelectedCommits extends React.Component<
           onHideWhitespaceInDiffChanged={this.onHideWhitespaceInDiffChanged}
           onOpenSubmodule={this.props.onOpenSubmodule}
           onDiffHandleChanged={this.onDiffHandleChanged}
+          onLineNumberDoubleClick={this.onDiffLineNumberDoubleClick}
         />
       </div>
     )
