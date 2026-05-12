@@ -3122,14 +3122,14 @@ export class App extends React.Component<IAppProps, IAppState> {
     )
   }
 
-  private onOpenInExternalEditor = (path: string) => {
+  private onOpenInExternalEditor = (path: string, line?: number) => {
     const repository = this.state.selectedState?.repository
     if (repository === undefined) {
       return
     }
 
     const fullPath = Path.join(repository.path, path)
-    this.props.dispatcher.openInExternalEditor(fullPath, repository.path)
+    this.props.dispatcher.openInExternalEditor(fullPath, repository.path, line)
   }
 
   private showRepository = (repository: Repository | CloningRepository) => {

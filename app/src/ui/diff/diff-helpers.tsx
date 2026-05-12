@@ -222,6 +222,38 @@ export function isRowChanged(
 }
 
 /**
+ * Walks `rows` between `startIndex` and `stopIndex` (both inclusive) and
+ * returns the new-file line number of the first row that is either an
+ * addition or a modification. Context rows, hunk headers, and deletion-only
+ * rows are skipped because none of them carry a meaningful new-file line
+ * number for the user's intended jump target.
+ *
+ * Returns `null` if no such row exists in the supplied range, or if the
+ * range is empty.
+ */
+export function findTopVisibleNewLineNumber(
+  rows: ReadonlyArray<SimplifiedDiffRow>,
+  startIndex: number,
+  stopIndex: number
+): number | null {
+  const stop = Math.min(stopIndex, rows.length - 1)
+
+  for (let i = Math.max(0, startIndex); i <= stop; i++) {
+    const row = rows[i]
+
+    if (row.type === DiffRowType.Added) {
+      return row.data.lineNumber
+    }
+
+    if (row.type === DiffRowType.Modified) {
+      return row.afterData.lineNumber
+    }
+  }
+
+  return null
+}
+
+/**
  * Returns an object with two ILineTokens objects that can be used to highlight
  * the added and removed characters between two lines.
  *

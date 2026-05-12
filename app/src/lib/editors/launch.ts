@@ -41,7 +41,9 @@ async function launchEditor(
       : [editorPath, ...args]
 
     log.debug(
-      `[external-editor] launching ${command.join(' ')}${cwd ? ` (cwd: ${cwd})` : ''}`
+      `[external-editor] launching ${command.join(' ')}${
+        cwd ? ` (cwd: ${cwd})` : ''
+      }`
     )
 
     const child = spawnAsDarwinApp
@@ -72,11 +74,13 @@ async function getMacOSAppExecutablePath(
   const infoPlistPath = Path.join(appPath, 'Contents', 'Info.plist')
 
   try {
-    const executable = (await execFile('/usr/libexec/PlistBuddy', [
-      '-c',
-      'Print :CFBundleExecutable',
-      infoPlistPath,
-    ])).stdout.trim()
+    const executable = (
+      await execFile('/usr/libexec/PlistBuddy', [
+        '-c',
+        'Print :CFBundleExecutable',
+        infoPlistPath,
+      ])
+    ).stdout.trim()
 
     if (executable.length === 0) {
       throw new Error('Empty CFBundleExecutable value')
@@ -98,10 +102,14 @@ async function getMacOSAppExecutablePath(
 // PyCharm on macOS can fail for root-level files such as README.md when a
 // project path and file path are passed as separate plain arguments. Launching
 // the project first and then passing a project-relative file path with
-// `--line 1` reliably opens both root and nested files in the correct window.
+// `--line N` reliably opens both root and nested files in the correct window.
+// The line argument also doubles as a jump target: when the caller knows what
+// the user is looking at (e.g. the topmost changed line in a diff viewport),
+// PyCharm opens the file at that line instead of at the top.
 function getPyCharmFileArgs(
   targetPath: string,
-  repositoryPath: string
+  repositoryPath: string,
+  line?: number
 ): ReadonlyArray<string> {
   const relativePath = Path.relative(repositoryPath, targetPath)
 
@@ -118,13 +126,19 @@ function getPyCharmFileArgs(
       ? relativePath
       : `.${Path.sep}${relativePath}`
 
-  return [repositoryPath, '--line', '1', projectRelativePath]
+  const lineArg =
+    line !== undefined && Number.isSafeInteger(line) && line > 0
+      ? line.toString()
+      : '1'
+
+  return [repositoryPath, '--line', lineArg, projectRelativePath]
 }
 
 async function launchPyCharmOnDarwin(
   targetPath: string,
   editor: FoundEditor,
-  repositoryPath?: string
+  repositoryPath?: string,
+  line?: number
 ): Promise<void> {
   const executablePath = await getMacOSAppExecutablePath(
     editor.path,
@@ -132,7 +146,7 @@ async function launchPyCharmOnDarwin(
   )
   const args =
     repositoryPath !== undefined && repositoryPath !== targetPath
-      ? getPyCharmFileArgs(targetPath, repositoryPath)
+      ? getPyCharmFileArgs(targetPath, repositoryPath, line)
       : [targetPath]
 
   return launchEditor(
@@ -150,22 +164,20 @@ async function launchPyCharmOnDarwin(
  * @param fullPath A folder or file path to pass as an argument when launching the editor.
  * @param editor The external editor to launch.
  * @param repositoryPath The repository path to provide when the target is a file.
+ * @param line One-based line number to jump to. Only honoured by editors that
+ *  accept a line argument (currently PyCharm on macOS).
  */
 export async function launchExternalEditor(
   fullPath: string,
   editor: FoundEditor,
-  repositoryPath?: string
+  repositoryPath?: string,
+  line?: number
 ): Promise<void> {
   if (__DARWIN__ && isPyCharmEditor(editor.editor)) {
-    return launchPyCharmOnDarwin(fullPath, editor, repositoryPath)
+    return launchPyCharmOnDarwin(fullPath, editor, repositoryPath, line)
   }
 
-  return launchEditor(
-    editor.path,
-    [fullPath],
-    `'${editor.editor}'`,
-    __DARWIN__
-  )
+  return launchEditor(editor.path, [fullPath], `'${editor.editor}'`, __DARWIN__)
 }
 
 /**
@@ -189,10 +201,5 @@ export const launchCustomExternalEditor = (
   const spawnAsDarwinApp = __DARWIN__ && customEditor.bundleID !== undefined
   const editorName = `custom editor at path '${customEditor.path}'`
 
-  return launchEditor(
-    customEditor.path,
-    args,
-    editorName,
-    spawnAsDarwinApp
-  )
+  return launchEditor(customEditor.path, args, editorName, spawnAsDarwinApp)
 }
