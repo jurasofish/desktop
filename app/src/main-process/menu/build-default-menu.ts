@@ -240,7 +240,9 @@ export function buildDefaultMenu({
         click: emit('show-pinned-repository-9'),
       },
       {
-        label: __DARWIN__ ? 'Show Pinned Repository 10' : 'Pinned repository 1&0',
+        label: __DARWIN__
+          ? 'Show Pinned Repository 10'
+          : 'Pinned repository 1&0',
         id: 'show-pinned-repository-0',
         accelerator: 'Ctrl+0',
         click: emit('show-pinned-repository-0'),
@@ -422,9 +424,7 @@ export function buildDefaultMenu({
           ? `Open in ${selectedExternalEditor ?? 'External Editor'}`
           : `&Open in ${selectedExternalEditor ?? 'external editor'}`,
         id: 'open-external-editor',
-        accelerator: getOpenInExternalEditorAccelerator(
-          selectedExternalEditor
-        ),
+        accelerator: getOpenInExternalEditorAccelerator(selectedExternalEditor),
         click: emit('open-external-editor'),
       },
       {

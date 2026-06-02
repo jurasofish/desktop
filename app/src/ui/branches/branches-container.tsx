@@ -57,7 +57,6 @@ interface IBranchesContainerProps {
   readonly onHardResetToBranch: (branchName: string) => void
   readonly canHardResetToBranch: (branchName: string) => boolean
 
-
   /** Optional callback to checkout a PR in a new worktree */
   readonly onCheckoutPRInNewWorktree?: (pullRequest: PullRequest) => void
 

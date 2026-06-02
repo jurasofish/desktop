@@ -117,9 +117,7 @@ export class BranchDropdown extends React.Component<IBranchDropdownProps> {
         onCheckoutPRInNewWorktree={this.onCheckoutPRInNewWorktree}
         onCreateBranchFromBranch={this.onCreateBranchFromBranch}
         onSquashMergeIntoCurrentBranch={this.onSquashMergeIntoCurrentBranch}
-        canSquashMergeIntoCurrentBranch={
-          this.canSquashMergeIntoCurrentBranch
-        }
+        canSquashMergeIntoCurrentBranch={this.canSquashMergeIntoCurrentBranch}
         onHardResetToBranch={this.onHardResetToBranch}
         canHardResetToBranch={this.canHardResetToBranch}
         underlineLinks={this.props.underlineLinks}
@@ -416,7 +414,10 @@ export class BranchDropdown extends React.Component<IBranchDropdownProps> {
   private onSquashMergeIntoCurrentBranch = (branchName: string) => {
     const branch = this.getBranchWithName(branchName)
 
-    if (branch === undefined || !this.canSquashMergeIntoCurrentBranch(branchName)) {
+    if (
+      branch === undefined ||
+      !this.canSquashMergeIntoCurrentBranch(branchName)
+    ) {
       return
     }
 
