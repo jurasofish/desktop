@@ -107,6 +107,15 @@ describe('repository list grouping', () => {
     assert.equal(grouped[0].items[1].repository.path, 'a')
   })
 
+  it('uses different list item ids for pinned and normal rows of the same repository', () => {
+    const repoA = new Repository('a', 1, null, false)
+
+    const grouped = groupRepositories([repoA], cache, [], [1])
+    const ids = grouped.flatMap(group => group.items.map(item => item.id))
+
+    assert.deepEqual(ids, ['0:pinned:1', '4:other:1'])
+  })
+
   it('omits missing repositories from the pinned group', () => {
     const presentRepo = new Repository('present', 1, null, false)
     const missingRepo = new Repository('missing', 2, null, true)
