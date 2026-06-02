@@ -77,7 +77,7 @@ export function generateBranchContextMenuItems(
       label: __DARWIN__
         ? 'New Branch from This Branch…'
         : 'New branch from this branch…',
-      action: () => onCreateBranchFromBranch(name),
+      action: () => onCreateBranchFromBranch(branch.name),
     })
   }
 
@@ -86,8 +86,8 @@ export function generateBranchContextMenuItems(
       label: __DARWIN__
         ? 'Squash and Merge into Current Branch…'
         : 'Squash and merge into current branch…',
-      action: () => onSquashMergeIntoCurrentBranch(name),
-      enabled: canSquashMergeIntoCurrentBranch?.(name) ?? true,
+      action: () => onSquashMergeIntoCurrentBranch(branch.name),
+      enabled: canSquashMergeIntoCurrentBranch?.(branch.name) ?? true,
     })
   }
 
@@ -96,8 +96,8 @@ export function generateBranchContextMenuItems(
       label: __DARWIN__
         ? 'Hard Reset Current Branch to This Branch…'
         : 'Hard reset current branch to this branch…',
-      action: () => onHardResetToBranch(name),
-      enabled: canHardResetToBranch?.(name) ?? true,
+      action: () => onHardResetToBranch(branch.name),
+      enabled: canHardResetToBranch?.(branch.name) ?? true,
     })
   }
 

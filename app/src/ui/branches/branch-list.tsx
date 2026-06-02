@@ -299,7 +299,8 @@ export class BranchList extends React.Component<
     const {
       onRenameBranch,
       onDeleteBranch,
-     onCheckoutInNewWorktree, onCreateBranchFromBranch,
+      onCheckoutInNewWorktree,
+      onCreateBranchFromBranch,
       onSquashMergeIntoCurrentBranch,
       canSquashMergeIntoCurrentBranch,
       onHardResetToBranch,
