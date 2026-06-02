@@ -12,14 +12,16 @@ describe('main-process menu', () => {
         askForConfirmationOnRepositoryRemoval: true,
       })
 
-      const viewMenu = menu.items.find(item => item.label === 'View')
-      const openInExternalEditor = viewMenu?.submenu?.items.find(
+      const repositoryMenu = menu.items.find(
+        item => item.label === 'Repository'
+      )
+      const openInExternalEditor = repositoryMenu?.submenu?.items.find(
         item => item.id === 'open-external-editor'
       )
 
       assert.equal(
         openInExternalEditor?.accelerator,
-        __DARWIN__ ? 'Ctrl+E' : 'CommandOrControl+Shift+A'
+        __DARWIN__ ? 'Ctrl+E' : 'CmdOrCtrl+Shift+A'
       )
     })
 
@@ -31,15 +33,14 @@ describe('main-process menu', () => {
         askForConfirmationOnRepositoryRemoval: true,
       })
 
-      const viewMenu = menu.items.find(item => item.label === 'View')
-      const openInExternalEditor = viewMenu?.submenu?.items.find(
+      const repositoryMenu = menu.items.find(
+        item => item.label === 'Repository'
+      )
+      const openInExternalEditor = repositoryMenu?.submenu?.items.find(
         item => item.id === 'open-external-editor'
       )
 
-      assert.equal(
-        openInExternalEditor?.accelerator,
-        'CommandOrControl+Shift+A'
-      )
+      assert.equal(openInExternalEditor?.accelerator, 'CmdOrCtrl+Shift+A')
     })
   })
 

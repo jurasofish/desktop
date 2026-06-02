@@ -40,10 +40,29 @@ Object.assign(globalThis, {
   BroadcastChannel: undefined,
 })
 
+const buildMenuFromTemplate = (
+  template: ReadonlyArray<Electron.MenuItemConstructorOptions>
+): Electron.Menu =>
+  ({
+    items: template.map(item => ({
+      ...item,
+      submenu: Array.isArray(item.submenu)
+        ? buildMenuFromTemplate(item.submenu)
+        : item.submenu,
+    })),
+  } as Electron.Menu)
+
 mock.module('electron', {
   namedExports: {
+    app: { getVersion: () => packageInfo.version },
+    BrowserWindow: class {
+      public static getAllWindows() {
+        return []
+      }
+    },
     clipboard: { writeText: () => {} },
-    shell: {},
+    Menu: { buildFromTemplate: mock.fn(buildMenuFromTemplate) },
+    shell: { openExternal: mock.fn(), showItemInFolder: mock.fn() },
     ipcRenderer: { on: mock.fn(x => {}) },
   },
 })
