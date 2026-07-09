@@ -43,5 +43,6 @@ pinned repository selection now owns the number-row shortcuts.
 This feature does not need a feature flag or extra settings surface.
 
 See
+
 - https://github.com/desktop/desktop/pull/20886
 - https://github.com/ByteSizedMarius/gh-desktop-patches/blob/main/patches/pins.patch
