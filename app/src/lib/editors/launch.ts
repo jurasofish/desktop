@@ -41,7 +41,9 @@ async function launchEditor(
       : [editorPath, ...args]
 
     log.debug(
-      `[external-editor] launching ${command.join(' ')}${cwd ? ` (cwd: ${cwd})` : ''}`
+      `[external-editor] launching ${command.join(' ')}${
+        cwd ? ` (cwd: ${cwd})` : ''
+      }`
     )
 
     const child = spawnAsDarwinApp
@@ -72,11 +74,13 @@ async function getMacOSAppExecutablePath(
   const infoPlistPath = Path.join(appPath, 'Contents', 'Info.plist')
 
   try {
-    const executable = (await execFile('/usr/libexec/PlistBuddy', [
-      '-c',
-      'Print :CFBundleExecutable',
-      infoPlistPath,
-    ])).stdout.trim()
+    const executable = (
+      await execFile('/usr/libexec/PlistBuddy', [
+        '-c',
+        'Print :CFBundleExecutable',
+        infoPlistPath,
+      ])
+    ).stdout.trim()
 
     if (executable.length === 0) {
       throw new Error('Empty CFBundleExecutable value')
@@ -160,12 +164,7 @@ export async function launchExternalEditor(
     return launchPyCharmOnDarwin(fullPath, editor, repositoryPath)
   }
 
-  return launchEditor(
-    editor.path,
-    [fullPath],
-    `'${editor.editor}'`,
-    __DARWIN__
-  )
+  return launchEditor(editor.path, [fullPath], `'${editor.editor}'`, __DARWIN__)
 }
 
 /**
@@ -189,10 +188,5 @@ export const launchCustomExternalEditor = (
   const spawnAsDarwinApp = __DARWIN__ && customEditor.bundleID !== undefined
   const editorName = `custom editor at path '${customEditor.path}'`
 
-  return launchEditor(
-    customEditor.path,
-    args,
-    editorName,
-    spawnAsDarwinApp
-  )
+  return launchEditor(customEditor.path, args, editorName, spawnAsDarwinApp)
 }

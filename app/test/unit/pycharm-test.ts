@@ -97,7 +97,9 @@ describe('pycharm helpers', () => {
       return
     }
 
-    const { launchExternalEditor } = await import('../../src/lib/editors/launch')
+    const { launchExternalEditor } = await import(
+      '../../src/lib/editors/launch'
+    )
     await launchExternalEditor(
       '/tmp/repo/src/index.ts',
       { editor: 'PyCharm', path: '/Applications/PyCharm.app' },
@@ -129,7 +131,9 @@ describe('pycharm helpers', () => {
       return
     }
 
-    const { launchExternalEditor } = await import('../../src/lib/editors/launch')
+    const { launchExternalEditor } = await import(
+      '../../src/lib/editors/launch'
+    )
     await launchExternalEditor(
       '/tmp/repo/README.md',
       { editor: 'PyCharm', path: '/Applications/PyCharm.app' },
@@ -153,7 +157,9 @@ describe('pycharm helpers', () => {
       return
     }
 
-    const { launchExternalEditor } = await import('../../src/lib/editors/launch')
+    const { launchExternalEditor } = await import(
+      '../../src/lib/editors/launch'
+    )
     await launchExternalEditor('/tmp/repo', {
       editor: 'PyCharm',
       path: '/Applications/PyCharm.app',
@@ -174,7 +180,9 @@ describe('pycharm helpers', () => {
       throw new Error('boom')
     }
 
-    const { launchExternalEditor } = await import('../../src/lib/editors/launch')
+    const { launchExternalEditor } = await import(
+      '../../src/lib/editors/launch'
+    )
     const { ExternalEditorError } = await import('../../src/lib/editors/shared')
 
     await assert.rejects(

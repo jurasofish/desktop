@@ -98,7 +98,10 @@ describe('main-process menu', () => {
 
     it('uses the PyCharm accelerator', () => {
       const item = findMenuItem(
-        buildDefaultMenuTemplate({ ...baseParams, selectedExternalEditor: 'PyCharm' }),
+        buildDefaultMenuTemplate({
+          ...baseParams,
+          selectedExternalEditor: 'PyCharm',
+        }),
         'open-external-editor'
       )
 

@@ -1,7 +1,5 @@
 export function isPyCharmEditor(editorName: string | null): boolean {
-  return (
-    editorName === 'PyCharm' || editorName === 'PyCharm Community Edition'
-  )
+  return editorName === 'PyCharm' || editorName === 'PyCharm Community Edition'
 }
 
 export function getOpenInExternalEditorAccelerator(

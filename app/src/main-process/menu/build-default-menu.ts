@@ -430,9 +430,7 @@ export function buildDefaultMenuTemplate({
           ? `Open in ${selectedExternalEditor ?? 'External Editor'}`
           : `&Open in ${selectedExternalEditor ?? 'external editor'}`,
         id: 'open-external-editor',
-        accelerator: getOpenInExternalEditorAccelerator(
-          selectedExternalEditor
-        ),
+        accelerator: getOpenInExternalEditorAccelerator(selectedExternalEditor),
         click: emit('open-external-editor'),
       },
       {
