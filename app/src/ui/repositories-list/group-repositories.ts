@@ -164,7 +164,7 @@ const toSortedListItems = (
 
     return {
       text: r instanceof Repository ? [title, nameOf(r)] : [title],
-      id: r.id.toString(),
+      id: `${getGroupKey(group)}:${r.id}`,
       repository: r,
       needsDisambiguation:
         // If the repository is in the enterprise group and has a duplicate

@@ -28,6 +28,7 @@ import { showContextualMenu } from '../../lib/menu-item'
 import { FileList } from './file-list'
 import { SeamlessDiffSwitcher } from '../diff/seamless-diff-switcher'
 import { ISideBySideDiffHandle } from '../diff/side-by-side-diff'
+import { isPyCharmEditor } from '../../lib/editors/pycharm'
 import { getDotComAPIEndpoint } from '../../lib/api'
 import { IMenuItem } from '../../lib/menu-item'
 import { IChangesetData } from '../../lib/git'
@@ -107,7 +108,10 @@ export class SelectedCommits extends React.Component<
 > {
   private readonly loadChangedFilesScheduler = new ThrottledScheduler(200)
 
-  private diffHandle: ISideBySideDiffHandle | null = null
+  private diff: {
+    readonly filePath: string
+    readonly handle: ISideBySideDiffHandle
+  } | null = null
 
   public constructor(props: ISelectedCommitsProps) {
     super(props)
@@ -125,12 +129,21 @@ export class SelectedCommits extends React.Component<
     const files = this.props.changesetData.files
     const file = files[row]
 
-    const line = this.diffHandle?.getTopVisibleNewLineNumber() ?? undefined
+    const line =
+      this.diff?.filePath === file.path
+        ? this.diff.handle.getTopVisibleNewLineNumber() ?? undefined
+        : undefined
     this.props.onOpenInExternalEditor(file.path, line)
   }
 
   private onDiffHandleChanged = (handle: ISideBySideDiffHandle | null) => {
-    this.diffHandle = handle
+    const file = this.props.selectedFile
+    this.diff =
+      handle === null || file === null ? null : { filePath: file.path, handle }
+  }
+
+  private get canOpenLineInExternalEditor() {
+    return __DARWIN__ && isPyCharmEditor(this.props.externalEditorLabel ?? null)
   }
 
   private onDiffLineNumberDoubleClick = (newLineNumber: number) => {
@@ -190,7 +203,11 @@ export class SelectedCommits extends React.Component<
           onHideWhitespaceInDiffChanged={this.onHideWhitespaceInDiffChanged}
           onOpenSubmodule={this.props.onOpenSubmodule}
           onDiffHandleChanged={this.onDiffHandleChanged}
-          onLineNumberDoubleClick={this.onDiffLineNumberDoubleClick}
+          onLineNumberDoubleClick={
+            this.canOpenLineInExternalEditor
+              ? this.onDiffLineNumberDoubleClick
+              : undefined
+          }
         />
       </div>
     )

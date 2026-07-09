@@ -8122,9 +8122,15 @@ export class AppStore extends TypedBaseStore<IAppState> {
     const visibleRepositoryIds = new Set(
       this.repositories.filter(r => !r.missing).map(r => r.id)
     )
-    const pinnedRepositories = this.pinnedRepositories.filter(id =>
-      visibleRepositoryIds.has(id)
-    )
+    const seenRepositoryIds = new Set<number>()
+    const pinnedRepositories = new Array<number>()
+
+    for (const id of this.pinnedRepositories) {
+      if (visibleRepositoryIds.has(id) && !seenRepositoryIds.has(id)) {
+        seenRepositoryIds.add(id)
+        pinnedRepositories.push(id)
+      }
+    }
 
     if (pinnedRepositories.length === this.pinnedRepositories.length) {
       return

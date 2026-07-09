@@ -126,6 +126,27 @@ export class RepositoriesList extends React.Component<
   IRepositoriesListState
 > {
   /**
+   * A memoized function for grouping repositories for display in the
+   * FilterList.
+   */
+  private getRepositoryGroups = memoizeOne(
+    (
+      repositories: ReadonlyArray<Repositoryish> | null,
+      localRepositoryStateLookup: ReadonlyMap<number, ILocalRepositoryState>,
+      recentRepositories: ReadonlyArray<number>,
+      pinnedRepositories: ReadonlyArray<number>
+    ) =>
+      repositories === null
+        ? []
+        : groupRepositories(
+            repositories,
+            localRepositoryStateLookup,
+            recentRepositories,
+            pinnedRepositories
+          )
+  )
+
+  /**
    * A memoized function for finding the selected list item based
    * on an IAPIRepository instance. The selected item will not be
    * recomputed as long as the provided list of repositories and
@@ -149,7 +170,7 @@ export class RepositoriesList extends React.Component<
     const repository = item.repository
     return (
       <RepositoryListItem
-        key={repository.id}
+        key={item.id}
         repository={repository}
         needsDisambiguation={item.needsDisambiguation}
         matches={matches}
@@ -321,7 +342,7 @@ export class RepositoriesList extends React.Component<
       this.getGroupLabel(groups[group].identifier)
 
   public render() {
-    const groups = groupRepositories(
+    const groups = this.getRepositoryGroups(
       this.props.repositories,
       this.props.localRepositoryStateLookup,
       this.props.recentRepositories,
@@ -353,6 +374,7 @@ export class RepositoriesList extends React.Component<
           groups={groups}
           invalidationProps={{
             repositories: this.props.repositories,
+            pinnedRepositories: this.props.pinnedRepositories,
             filterText: this.props.filterText,
           }}
           onItemContextMenu={this.onItemContextMenu}

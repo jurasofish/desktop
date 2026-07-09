@@ -176,7 +176,10 @@ export class RepositoryView extends React.Component<
    * diff so that double-clicking a changed file can open PyCharm at roughly
    * that line instead of at the top.
    */
-  private workingDiffHandle: ISideBySideDiffHandle | null = null
+  private workingDiff: {
+    readonly filePath: string
+    readonly handle: ISideBySideDiffHandle
+  } | null = null
 
   private focusHistoryNeeded: boolean = false
   private focusChangesNeeded: boolean = false
@@ -629,6 +632,7 @@ export class RepositoryView extends React.Component<
           onDiffOptionsOpened={this.onDiffOptionsOpened}
           onDiffHandleChanged={this.onWorkingDiffHandleChanged}
           onOpenLineInExternalEditor={this.props.onOpenInExternalEditor}
+          externalEditorLabel={this.props.externalEditorLabel}
         />
       )
     }
@@ -648,14 +652,17 @@ export class RepositoryView extends React.Component<
   }
 
   private onWorkingDiffHandleChanged = (
+    filePath: string,
     handle: ISideBySideDiffHandle | null
   ) => {
-    this.workingDiffHandle = handle
+    this.workingDiff = handle === null ? null : { filePath, handle }
   }
 
   private onChangedFileDoubleClickInExternalEditor = (path: string) => {
     const line =
-      this.workingDiffHandle?.getTopVisibleNewLineNumber() ?? undefined
+      this.workingDiff?.filePath === path
+        ? this.workingDiff.handle.getTopVisibleNewLineNumber() ?? undefined
+        : undefined
     this.props.onOpenInExternalEditor(path, line)
   }
 

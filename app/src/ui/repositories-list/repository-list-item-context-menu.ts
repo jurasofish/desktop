@@ -92,7 +92,7 @@ const buildPinMenuItem = (
 ): ReadonlyArray<IMenuItem> => {
   const { repository } = config
 
-  if (!(repository instanceof Repository)) {
+  if (!(repository instanceof Repository) || repository.missing) {
     return []
   }
 

@@ -122,6 +122,43 @@ describe('main-process menu', () => {
 
       assert.equal(item?.accelerator, 'CmdOrCtrl+Shift+A')
     })
+
+    it('reserves Ctrl+0 through Ctrl+9 for pinned repositories', () => {
+      const items = buildDefaultMenuTemplate(baseParams)
+      const accelerators = new Map<string, string>()
+
+      const collectAccelerators = (
+        menuItems: ReadonlyArray<Electron.MenuItemConstructorOptions>
+      ) => {
+        for (const item of menuItems) {
+          if (item.accelerator !== undefined && item.id !== undefined) {
+            assert.equal(accelerators.has(item.accelerator), false)
+            accelerators.set(item.accelerator, item.id)
+          }
+
+          if (Array.isArray(item.submenu)) {
+            collectAccelerators(item.submenu)
+          }
+        }
+      }
+
+      collectAccelerators(items)
+
+      for (const [accelerator, id] of [
+        ['Ctrl+1', 'show-pinned-repository-1'],
+        ['Ctrl+2', 'show-pinned-repository-2'],
+        ['Ctrl+3', 'show-pinned-repository-3'],
+        ['Ctrl+4', 'show-pinned-repository-4'],
+        ['Ctrl+5', 'show-pinned-repository-5'],
+        ['Ctrl+6', 'show-pinned-repository-6'],
+        ['Ctrl+7', 'show-pinned-repository-7'],
+        ['Ctrl+8', 'show-pinned-repository-8'],
+        ['Ctrl+9', 'show-pinned-repository-9'],
+        ['Ctrl+0', 'show-pinned-repository-0'],
+      ]) {
+        assert.equal(accelerators.get(accelerator), id)
+      }
+    })
   })
   describe('ensureItemIds', () => {
     it('leaves explicitly specified ids', () => {

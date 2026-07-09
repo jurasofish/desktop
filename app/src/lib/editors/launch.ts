@@ -115,7 +115,8 @@ function getPyCharmFileArgs(
 
   if (
     relativePath.length === 0 ||
-    relativePath.startsWith('..') ||
+    relativePath === '..' ||
+    relativePath.startsWith(`..${Path.sep}`) ||
     Path.isAbsolute(relativePath)
   ) {
     return [targetPath]
