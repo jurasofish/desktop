@@ -49,6 +49,14 @@ mock.module('child_process', {
         unref: () => {},
       }
     },
+    exec: () => {
+      throw new Error('child_process.exec should not be called in this test')
+    },
+    execFile: () => {
+      throw new Error(
+        'child_process.execFile should not be called in this test'
+      )
+    },
   },
 })
 
