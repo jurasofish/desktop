@@ -25,7 +25,7 @@ mock.module('../../src/lib/exec-file', {
   },
 })
 
-mock.module('../../src/ui/lib/path-exists', {
+mock.module('../../src/lib/path-exists', {
   namedExports: {
     pathExists: async () => true,
   },
