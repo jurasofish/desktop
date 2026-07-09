@@ -288,8 +288,12 @@ export class BranchList extends React.Component<
   ) => {
     event.preventDefault()
 
-    const { onRenameBranch, onDeleteBranch, onCheckoutInNewWorktree, onCreateBranchFromBranch } =
-      this.props
+    const {
+      onRenameBranch,
+      onDeleteBranch,
+      onCheckoutInNewWorktree,
+      onCreateBranchFromBranch,
+    } = this.props
 
     if (
       onRenameBranch === undefined &&
