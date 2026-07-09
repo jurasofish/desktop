@@ -4467,6 +4467,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
     // to be recalculated to reserve space for it.
     if (foldout.type === FoldoutType.Worktree) {
       this.updateResizableConstraints()
+    } else if (foldout.type === FoldoutType.Repository) {
+      this.repositoryFilterText = ''
     }
 
     this.emitUpdate()
