@@ -10,6 +10,8 @@ import { WorkingDirectoryFileChange } from '../../models/status'
 import { Repository } from '../../models/repository'
 import { Dispatcher } from '../dispatcher'
 import { SeamlessDiffSwitcher } from '../diff/seamless-diff-switcher'
+import { ISideBySideDiffHandle } from '../diff/side-by-side-diff'
+import { isPyCharmEditor } from '../../lib/editors/pycharm'
 import { PopupType } from '../../models/popup'
 
 interface IChangesProps {
@@ -54,6 +56,26 @@ interface IChangesProps {
 
   /** Called when the user opens the diff options popover */
   readonly onDiffOptionsOpened: () => void
+
+  /**
+   * Called when the underlying text-diff component mounts and unmounts so
+   * that parents can hold an imperative handle for querying viewport state.
+   */
+  readonly onDiffHandleChanged?: (
+    filePath: string,
+    handle: ISideBySideDiffHandle | null
+  ) => void
+
+  /**
+   * Called when the user double-clicks a line-number gutter cell in the
+   * working-tree diff and that cell resolves to a new-file line. The
+   * consumer is responsible for opening the file in the external editor
+   * at that line.
+   */
+  readonly onOpenLineInExternalEditor?: (path: string, line: number) => void
+
+  /** The name of the currently selected external editor. */
+  readonly externalEditorLabel?: string
 }
 
 export class Changes extends React.Component<IChangesProps, {}> {
@@ -131,9 +153,27 @@ export class Changes extends React.Component<IChangesProps, {}> {
           onOpenSubmodule={this.props.onOpenSubmodule}
           onChangeImageDiffType={this.props.onChangeImageDiffType}
           onHideWhitespaceInDiffChanged={this.onHideWhitespaceInDiffChanged}
+          onDiffHandleChanged={this.onDiffHandleChanged}
+          onLineNumberDoubleClick={
+            this.canOpenLineInExternalEditor
+              ? this.onDiffLineNumberDoubleClick
+              : undefined
+          }
         />
       </div>
     )
+  }
+
+  private get canOpenLineInExternalEditor() {
+    return __DARWIN__ && isPyCharmEditor(this.props.externalEditorLabel ?? null)
+  }
+
+  private onDiffHandleChanged = (handle: ISideBySideDiffHandle | null) => {
+    this.props.onDiffHandleChanged?.(this.props.file.path, handle)
+  }
+
+  private onDiffLineNumberDoubleClick = (newLineNumber: number) => {
+    this.props.onOpenLineInExternalEditor?.(this.props.file.path, newLineNumber)
   }
 
   private onShowSideBySideDiffChanged = (showSideBySideDiff: boolean) => {
