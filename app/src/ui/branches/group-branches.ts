@@ -60,7 +60,13 @@ export function groupBranches(
       !b.isDesktopForkRemoteBranch
   )
 
-  const remainingItems = remainingBranches.map(b => ({
+  const ordinaryBranches = remainingBranches.filter(
+    branch => !branch.name.startsWith('backup/')
+  )
+  const backupBranches = remainingBranches.filter(branch =>
+    branch.name.startsWith('backup/')
+  )
+  const remainingItems = [...ordinaryBranches, ...backupBranches].map(b => ({
     text: [b.name],
     id: b.name,
     branch: b,
