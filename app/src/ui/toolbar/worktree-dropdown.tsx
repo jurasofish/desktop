@@ -170,7 +170,7 @@ export class WorktreeDropdown extends React.Component<
             ? {
                 width: this.props.worktreeDropdownWidth.value,
                 maxWidth: this.props.worktreeDropdownWidth.max,
-                minWidth: 365,
+                minWidth: 500,
               }
             : undefined
         }

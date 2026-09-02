@@ -53,6 +53,14 @@
     }
   }
 
+  // Allow names to use the available width in the resizable toolbar foldout.
+  // Keep the ellipsis rule above so long names still truncate when necessary.
+  .toolbar-dropdown.resizable & {
+    .worktrees-list-item .name {
+      max-width: unset;
+    }
+  }
+
   .new-worktree-button {
     flex-shrink: 0;
   }

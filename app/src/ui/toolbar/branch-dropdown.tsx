@@ -231,13 +231,11 @@ export class BranchDropdown extends React.Component<IBranchDropdownProps> {
       )
     }
 
-    // Properties to override the default foldout style for the branch dropdown.
-    // The min width of the foldout is different from `branchDropdownWidth.min`
-    // because the branches list foldout min width we want set to 365px instead.
+    // Keep the foldout minimum independent of the toolbar button minimum.
     const foldoutStyleOverrides: React.CSSProperties = {
       width: this.props.branchDropdownWidth.value,
       maxWidth: this.props.branchDropdownWidth.max,
-      minWidth: 365,
+      minWidth: 500,
     }
 
     return (
