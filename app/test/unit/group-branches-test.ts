@@ -36,6 +36,27 @@ describe('Branches grouping', () => {
     BranchType.Local,
     ''
   )
+  const backupBranch = new Branch(
+    'backup/branch',
+    null,
+    branchTip,
+    BranchType.Local,
+    ''
+  )
+  const secondOtherBranch = new Branch(
+    'second-other-branch',
+    null,
+    branchTip,
+    BranchType.Local,
+    ''
+  )
+  const secondBackupBranch = new Branch(
+    'backup/second-branch',
+    null,
+    branchTip,
+    BranchType.Local,
+    ''
+  )
 
   const allBranches = [currentBranch, ...recentBranches, otherBranch]
 
@@ -59,5 +80,32 @@ describe('Branches grouping', () => {
     assert.equal(groups[2].identifier, 'other')
     items = groups[2].items
     assert.equal(items[0].branch, otherBranch)
+  })
+
+  it('should place backup branches after other branches', () => {
+    const groups = groupBranches(
+      null,
+      null,
+      [backupBranch, otherBranch, secondBackupBranch, secondOtherBranch],
+      []
+    )
+
+    assert.deepEqual(
+      groups[0].items.map(item => item.branch),
+      [otherBranch, secondOtherBranch, backupBranch, secondBackupBranch]
+    )
+  })
+
+  it('should keep backup branches in Recent', () => {
+    const groups = groupBranches(
+      defaultBranch,
+      currentBranch,
+      [currentBranch, backupBranch],
+      [backupBranch]
+    )
+
+    assert.equal(groups[0].identifier, 'default')
+    assert.equal(groups[1].identifier, 'recent')
+    assert.equal(groups[1].items[0].branch, backupBranch)
   })
 })
