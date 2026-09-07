@@ -1,4 +1,11 @@
 dialog#commit-message-dialog {
+  width: 800px;
+  max-width: calc(100vw - var(--spacing-double));
+
+  .description-field textarea {
+    min-height: min(380px, max(80px, calc(100vh - 300px)));
+  }
+
   .dialog-content {
     padding: 0;
   }
