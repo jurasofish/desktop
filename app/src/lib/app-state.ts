@@ -597,6 +597,12 @@ export interface IRepositoryState {
    */
   readonly localCommitSHAs: ReadonlyArray<string>
 
+  /**
+   * The commits reachable from HEAD that the default branch doesn't contain,
+   * or null when the default branch or HEAD is unknown.
+   */
+  readonly commitSHAsNotOnDefaultBranch: ReadonlySet<string> | null
+
   /** The remote currently associated with the repository, if defined in the configuration */
   readonly remote: IRemote | null
 

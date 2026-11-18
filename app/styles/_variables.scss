@@ -422,6 +422,7 @@ $overlay-background-color: rgba(0, 0, 0, 0.4);
   --diff-delete-text-color: var(--diff-text-color);
 
   --diff-hunk-background-color: #{$blue-000};
+  --commit-on-default-branch-background-color: #{$blue-000};
   --diff-hunk-border-color: #{$blue-200};
   --diff-hunk-gutter-color: #{darken($blue-200, 5%)};
   --diff-hunk-gutter-background-color: #{$blue-100};

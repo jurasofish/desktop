@@ -12,6 +12,11 @@
     height: 100%;
   }
 
+  // Selected and keyboard insertion styles below take precedence.
+  .list-item.on-default-branch .commit {
+    background-color: var(--commit-on-default-branch-background-color);
+  }
+
   .list-item.selected:not(.in-keyboard-insertion-mode) {
     .commit {
       .unpushed-indicator {

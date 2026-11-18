@@ -181,6 +181,12 @@ interface ICommitListProps {
   /** Shas that should be highlighted */
   readonly shasToHighlight?: ReadonlyArray<string>
 
+  /**
+   * The commits that aren't on the default branch. Every other listed commit
+   * gets a tinted background. Undefined or null tints nothing.
+   */
+  readonly commitSHAsNotOnDefaultBranch?: ReadonlySet<string> | null
+
   readonly accounts: ReadonlyArray<Account>
 
   readonly preferAbsoluteDates: boolean
@@ -454,22 +460,31 @@ export class CommitList extends React.Component<
   }
 
   private getRowCustomClassMap = () => {
-    const { commitSHAs, shasToHighlight } = this.props
-    if (shasToHighlight === undefined || shasToHighlight.length === 0) {
-      return undefined
-    }
-
-    const rowsForShasNotInDiff = commitSHAs
-      .filter(sha => shasToHighlight.includes(sha))
-      .map(sha => this.rowForSHA(sha))
-
-    if (rowsForShasNotInDiff.length === 0) {
-      return undefined
-    }
-
+    const { commitSHAs, shasToHighlight, commitSHAsNotOnDefaultBranch } =
+      this.props
     const rowClassMap = new Map<string, ReadonlyArray<number>>()
-    rowClassMap.set('highlighted', rowsForShasNotInDiff)
-    return rowClassMap
+
+    if (shasToHighlight !== undefined && shasToHighlight.length > 0) {
+      const rowsForShasNotInDiff = commitSHAs
+        .filter(sha => shasToHighlight.includes(sha))
+        .map(sha => this.rowForSHA(sha))
+
+      if (rowsForShasNotInDiff.length > 0) {
+        rowClassMap.set('highlighted', rowsForShasNotInDiff)
+      }
+    }
+
+    if (commitSHAsNotOnDefaultBranch != null) {
+      const rowsOnDefaultBranch = commitSHAs
+        .map((sha, row) => (commitSHAsNotOnDefaultBranch.has(sha) ? -1 : row))
+        .filter(row => row !== -1)
+
+      if (rowsOnDefaultBranch.length > 0) {
+        rowClassMap.set('on-default-branch', rowsOnDefaultBranch)
+      }
+    }
+
+    return rowClassMap.size > 0 ? rowClassMap : undefined
   }
 
   private renderExpandedAuthor(user: IAvatarUser): string | JSX.Element {
@@ -623,6 +638,8 @@ export class CommitList extends React.Component<
             commitLookupHash: this.commitsHash(this.getVisibleCommits()),
             tagsToPush: this.props.tagsToPush,
             shasToHighlight: this.props.shasToHighlight,
+            commitSHAsNotOnDefaultBranch:
+              this.props.commitSHAsNotOnDefaultBranch,
             preferAbsoluteDates: this.props.preferAbsoluteDates,
             isAssistedCommitRepositoryLocked,
           }}

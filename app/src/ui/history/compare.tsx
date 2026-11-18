@@ -42,6 +42,7 @@ interface ICompareSidebarProps {
   readonly emoji: Map<string, Emoji>
   readonly commitLookup: Map<string, Commit>
   readonly localCommitSHAs: ReadonlyArray<string>
+  readonly commitSHAsNotOnDefaultBranch: ReadonlySet<string> | null
   readonly askForConfirmationOnCheckoutCommit: boolean
   readonly dispatcher: Dispatcher
   readonly currentBranch: Branch | null
@@ -250,6 +251,11 @@ export class CompareSidebar extends React.Component<
         selectedSHAs={this.props.selectedCommitShas}
         shasToHighlight={this.props.shasToHighlight}
         localCommitSHAs={this.props.localCommitSHAs}
+        commitSHAsNotOnDefaultBranch={
+          formState.kind === HistoryTabMode.History
+            ? this.props.commitSHAsNotOnDefaultBranch
+            : null
+        }
         canResetToCommits={formState.kind === HistoryTabMode.History}
         canUndoCommits={formState.kind === HistoryTabMode.History}
         canAmendCommits={formState.kind === HistoryTabMode.History}

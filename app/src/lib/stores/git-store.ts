@@ -64,6 +64,7 @@ import {
   getAheadBehind,
   revRange,
   revSymmetricDifference,
+  getCommitSHAsInRange,
   getConfigValue,
   removeRemote,
   createTag,
@@ -138,6 +139,8 @@ export class GitStore extends BaseStore {
   private _recentBranches: ReadonlyArray<Branch> = []
 
   private _localCommitSHAs: ReadonlyArray<string> = []
+
+  private _commitSHAsNotOnDefaultBranch: ReadonlySet<string> | null = null
 
   private _commitMessage: ICommitMessage = DefaultCommitMessage
 
@@ -753,6 +756,38 @@ export class GitStore extends BaseStore {
    */
   public get localCommitSHAs(): ReadonlyArray<string> {
     return this._localCommitSHAs
+  }
+
+  /**
+   * Load the commits reachable from HEAD that the default branch doesn't
+   * contain. A local default branch is compared through its upstream, so a
+   * commit merged on the remote counts as on the default branch even when the
+   * local branch is stale.
+   */
+  public async loadCommitsNotOnDefaultBranch(): Promise<void> {
+    const defaultBranch = this._defaultBranch
+    const defaultRef =
+      defaultBranch === null
+        ? null
+        : defaultBranch.upstream ?? defaultBranch.name
+
+    const shas =
+      defaultRef === null
+        ? null
+        : await withRepositoryGitOperation(this.repository.path, 'read', () =>
+            getCommitSHAsInRange(this.repository, revRange(defaultRef, 'HEAD'))
+          )
+
+    this._commitSHAsNotOnDefaultBranch = shas === null ? null : new Set(shas)
+    this.emitUpdate()
+  }
+
+  /**
+   * The commits reachable from HEAD that the default branch doesn't contain,
+   * or null when the default branch or HEAD is unknown.
+   */
+  public get commitSHAsNotOnDefaultBranch(): ReadonlySet<string> | null {
+    return this._commitSHAsNotOnDefaultBranch
   }
 
   /** Store the given commits. */

@@ -192,6 +192,29 @@ export async function getCommitsInRange(
 }
 
 /**
+ * Get the SHAs of the commits inside the provided range.
+ *
+ * Returns `null` when it is not possible to perform because of a bad range.
+ */
+export async function getCommitSHAsInRange(
+  repository: Repository,
+  range: string
+): Promise<ReadonlyArray<string> | null> {
+  const result = await git(
+    ['rev-list', '--end-of-options', range, '--'],
+    repository.path,
+    'getCommitSHAsInRange',
+    { expectedErrors: new Set<GitError>([GitError.BadRevision]) }
+  )
+
+  if (result.gitError === GitError.BadRevision) {
+    return null
+  }
+
+  return result.stdout.split('\n').filter(sha => sha.length > 0)
+}
+
+/**
  * Determine if merge commits exist in history after given commit
  * If commitRef is null, goes back to HEAD of branch.
  */

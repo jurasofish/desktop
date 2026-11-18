@@ -1584,6 +1584,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
     this.repositoryStateCache.update(repository, () => ({
       commitLookup: gitStore.commitLookup,
       localCommitSHAs: gitStore.localCommitSHAs,
+      commitSHAsNotOnDefaultBranch: gitStore.commitSHAsNotOnDefaultBranch,
       localTags: gitStore.localTags,
       aheadBehind: gitStore.aheadBehind,
       tagsToPush: gitStore.tagsToPush,
@@ -4696,6 +4697,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
     } else if (state.branchesState.tip.kind === TipState.Unborn) {
       await gitStore.loadLocalCommits(null)
     }
+
+    await gitStore.loadCommitsNotOnDefaultBranch()
   }
 
   /**
@@ -4711,6 +4714,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
     if (tip.kind === TipState.Valid) {
       await gitStore.loadLocalCommits(tip.branch)
     }
+
+    await gitStore.loadCommitsNotOnDefaultBranch()
 
     return this.updateOrSelectFirstCommit(
       repository,

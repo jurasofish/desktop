@@ -325,6 +325,7 @@ body.theme-dark {
   --diff-delete-text-color: #{$red-100};
 
   --diff-hunk-background-color: #{darken($gray-900, 3%)};
+  --commit-on-default-branch-background-color: #{mix($blue-800, $gray-900, 25%)};
   --diff-hunk-border-color: #{lighten($gray-900, 3%)};
   --diff-hunk-gutter-color: #{lighten($gray-900, 3%)};
   --diff-hunk-gutter-background-color: #{darken($gray-900, 6%)};

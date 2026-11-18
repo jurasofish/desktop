@@ -476,6 +476,7 @@ function getInitialRepositoryState(commitMode: CommitMode): IRepositoryState {
     commitAuthor: null,
     commitLookup: new Map<string, Commit>(),
     localCommitSHAs: [],
+    commitSHAsNotOnDefaultBranch: null,
     localTags: null,
     tagsToPush: null,
     aheadBehind: null,
